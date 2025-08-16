@@ -1,54 +1,73 @@
 # syntax=docker/dockerfile:1.4
 
-ARG BASE_IMAGE_TAG="22.04"
-FROM stainless403/ubuntu:$BASE_IMAGE_TAG
+ARG BASE_IMAGE_TAG="ubuntu-24.04-v4"
+FROM jlesage/baseimage-gui:$BASE_IMAGE_TAG
 
 LABEL maintainer="stainless403"
-LABEL description="base on stainless403/ubuntu:$BASE_IMAGE_TAG"
+LABEL description="base on jlesage/baseimage-gui:$BASE_IMAGE_TAG"
 
+# 平台相关参数
 ARG TARGETPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
-
 ARG BUILDPLATFORM
 ARG BUILDOS
 ARG BUILDARCH
 ARG BUILDVARIANT
 
-RUN echo "-----Image target platform details:"
-RUN echo "TARGETPLATFORM    : $TARGETPLATFORM"
-RUN echo "TARGETOS          : $TARGETOS"
-RUN echo "TARGETARCH        : $TARGETARCH"
-RUN echo "TARGETVARIANT     : $TARGETVARIANT"
-
-RUN echo "-----Image build platform details:"
-RUN echo "BUILDPLATFORM     : $BUILDPLATFORM"
-RUN echo "BUILDOS           : $BUILDOS"
-RUN echo "BUILDARCH         : $BUILDARCH"
-RUN echo "BUILDVARIANT      : $BUILDVARIANT"
-
+# 配置参数
 ARG APT_SOURCE_HOST="mirrors.ustc.edu.cn"
-
-RUN if [[ -n "$APT_SOURCE_HOST" ]]; then \
-    sed -i "s/archive.ubuntu.com/${APT_SOURCE_HOST}/g" /etc/apt/sources.list; \
-  fi
-
-RUN apt update -y
-RUN apt install python3 python3-pip python3-pyqt5 unrar wget curl upx-ucl -y
-# RUN apt install fonts-wqy-zenhei fonts-noto-color-emoji -y
-
-
 ARG PYPI_MIRROR
 ARG DEFAULT_MIRROR="https://pypi.doubanio.com/simple"
 ENV PYPI_MIRROR=${PYPI_MIRROR:-${DEFAULT_MIRROR}}
-RUN echo "PYPI_MIRROR: $PYPI_MIRROR"
 
-RUN python3 -m pip install pyinstaller --verbose -i $PYPI_MIRROR
+# Python和工具版本
+# ARG PYINSTALLER_VERSION="6.3.0"
+# ARG POETRY_VERSION="1.7.1"
 
-RUN if which pyinstaller > /dev/null 2>&1; then \
-    echo '⚠️ pyinstaller is not in $PATH, now make a link.'; \
-    ln -s ~/.local/bin/pyinstaller /usr/local/sbin/pyinstaller; \
-  else \
-    echo '✅ pyinstaller is in $PATH.'; \
-  fi
+# 所有安装和配置步骤
+RUN echo "-----Platform Information-----" && \
+    echo "Target Platform: $TARGETPLATFORM ($TARGETOS/$TARGETARCH/$TARGETVARIANT)" && \
+    echo "Build Platform: $BUILDPLATFORM ($BUILDOS/$BUILDARCH/$BUILDVARIANT)" && \
+    echo "PYPI Mirror: $PYPI_MIRROR" && \
+    # 配置apt源
+    if [[ -n "$APT_SOURCE_HOST" ]]; then \
+      sed -i "s/archive.ubuntu.com/${APT_SOURCE_HOST}/g" /etc/apt/sources.list && \
+      sed -i "s/ports.ubuntu.com/${APT_SOURCE_HOST}/g" /etc/apt/sources.list; \
+    fi && \
+    # 安装依赖
+    apt update -y && \
+    apt install -y --no-install-recommends \
+      software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa -y && \
+    apt update -y && \
+    apt install -y --no-install-recommends \
+      python3.13 \
+      python3.13-dev \
+      python3.13-venv \
+      python3-pyqt5 \
+      unrar \
+      wget \
+      curl \
+      upx-ucl \
+      binutils && \
+    # 安装pip
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.13 && \
+    # 设置Python默认版本
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 && \
+    # 安装Python工具（指定版本）
+    python3.13 -m pip install pyinstaller poetry --verbose -i $PYPI_MIRROR && \
+    # 安装UV包管理器
+    curl -sSfL https://astral.sh/uv/install.sh | sh && \
+    # 创建软链接确保工具可用
+    if ! which uv > /dev/null 2>&1; then \
+      ln -sf /root/.local/bin/uv /usr/local/bin/uv; \
+    fi && \
+    if ! which pyinstaller > /dev/null 2>&1; then \
+      ln -sf /root/.local/bin/pyinstaller /usr/local/sbin/pyinstaller; \
+    fi && \
+    # 清理
+    apt clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /root/.cache/pip
