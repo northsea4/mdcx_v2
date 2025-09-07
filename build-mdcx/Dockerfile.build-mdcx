@@ -16,12 +16,15 @@ ARG BUILDOS
 ARG BUILDARCH
 ARG BUILDVARIANT
 
+ARG PYQT5_VERSION="5.15.6"
+
 # 输出构建信息（合并多个RUN命令）
 RUN echo "-----Image platform details:" && \
   echo "Target: $TARGETPLATFORM ($TARGETOS/$TARGETARCH/$TARGETVARIANT)" && \
   echo "Build: $BUILDPLATFORM ($BUILDOS/$BUILDARCH/$BUILDVARIANT)"
 
 COPY build-mdcx/.mdcx_src /tmp/mdcx
+COPY build-mdcx/gen-req.bash /tmp/mdcx/gen-req.bash
 WORKDIR /tmp/mdcx
 
 # 设置PyPI镜像
@@ -29,17 +32,17 @@ ARG PYPI_MIRROR
 ARG DEFAULT_MIRROR="https://pypi.doubanio.com/simple"
 ENV PYPI_MIRROR=${PYPI_MIRROR:-${DEFAULT_MIRROR}}
 
-# 安装`pip`依赖
-RUN uv sync --all-extras --dev \
-  && uv run pre-commit install \
-  && uv pip install -e .
-
 # 保存版本信息
 RUN mkdir -p ./dist && echo $APP_VERSION > ./dist/app-version
 
-# 安装依赖并构建
+# 安装依赖
 RUN echo "PYPI_MIRROR: $PYPI_MIRROR" && \
-  uv run pyinstaller -n MDCx \
+  bash ./gen-req.bash pyproject.toml requirements.txt $PYQT5_VERSION && \
+  python3 -m pip install -r requirements.txt --verbose -i $PYPI_MIRROR
+
+# 构建
+RUN echo "PYPI_MIRROR: $PYPI_MIRROR" && \
+  pyinstaller -n MDCx \
   -F -w main.py \
   --add-data "resources:resources" \
   --add-data "libs:." \

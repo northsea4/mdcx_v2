@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1.4
 
-ARG BASE_IMAGE_TAG="ubuntu-24.04-v4"
-FROM jlesage/baseimage-gui:$BASE_IMAGE_TAG
+ARG BASE_IMAGE_TAG="ubuntu-22.04"
+FROM stainless403/baseimage-gui:$BASE_IMAGE_TAG
 
 LABEL maintainer="stainless403"
-LABEL description="base on jlesage/baseimage-gui:$BASE_IMAGE_TAG"
+LABEL description="base on stainless403/baseimage-gui:$BASE_IMAGE_TAG"
 
 ARG TARGETPLATFORM
 ARG TARGETOS
@@ -39,7 +39,9 @@ ENV DISPLAY_HEIGHT="750"
 
 ARG APT_SOURCE_HOST="mirrors.ustc.edu.cn"
 
-# TODO 配置apt源
+RUN if [[ -n "$APT_SOURCE_HOST" ]]; then \
+    sed -i "s/archive.ubuntu.com/${APT_SOURCE_HOST}/g" /etc/apt/sources.list; \
+  fi
 
 # 安装一些必须的软件包
 RUN apt-get update -y && \

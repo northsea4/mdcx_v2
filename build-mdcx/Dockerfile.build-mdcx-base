@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1.4
 
-# ARG BASE_IMAGE_TAG="ubuntu-24.04-v4"
 ARG BASE_IMAGE_TAG="ubuntu-22.04-v4"
 FROM jlesage/baseimage-gui:$BASE_IMAGE_TAG
 
@@ -23,6 +22,10 @@ ARG PYPI_MIRROR
 ARG DEFAULT_MIRROR="https://pypi.doubanio.com/simple"
 ENV PYPI_MIRROR=${PYPI_MIRROR:-${DEFAULT_MIRROR}}
 
+# 设置非交互式安装，避免tzdata等包的交互提示
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
+
 # 显示平台信息
 RUN echo "-----Platform Information-----" && \
   echo "Target Platform: $TARGETPLATFORM ($TARGETOS/$TARGETARCH/$TARGETVARIANT)" && \
@@ -32,10 +35,11 @@ RUN echo "-----Platform Information-----" && \
 # TODO 配置apt源
 
 # 安装基础软件包和添加PPA源
+# gpg-agent:
+# https://github.com/nnstreamer/nnstreamer/issues/4432 \
+# https://github.com/nnstreamer/nnstreamer/pull/4443/files \
 RUN apt update -y && \
   apt install -y --no-install-recommends \
-  # https://github.com/nnstreamer/nnstreamer/issues/4432
-  # https://github.com/nnstreamer/nnstreamer/pull/4443/files
   gpg-agent \
   software-properties-common && \
   add-apt-repository ppa:deadsnakes/ppa -y && \
@@ -59,7 +63,7 @@ RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.13 && \
   update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1
 
 # 安装工具
-RUN python3.13 -m pip install pyinstaller poetry uv --verbose -i $PYPI_MIRROR
+RUN python3.13 -m pip install pyinstaller poetry --verbose -i $PYPI_MIRROR
 
 # 配置工具软链接
 RUN if ! which pyinstaller > /dev/null 2>&1; then \

@@ -24,6 +24,7 @@ Desktop.ini
 !/app/.keep
 
 .mdcx_src
+/build-mdcx/.mdcx_src*
 
 /regctl.sh
 /playground

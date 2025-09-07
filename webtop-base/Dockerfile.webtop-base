@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1.4
 
-ARG BASE_IMAGE_TAG=ubuntu-kde-version-409dbb60
-FROM linuxserver/webtop:$BASE_IMAGE_TAG
+ARG BASE_IMAGE_TAG=ubuntu-kde-22.04
+FROM stainless403/webtop:$BASE_IMAGE_TAG
 
 LABEL maintainer="stainless403"
-LABEL description="base on linuxserver/webtop:$BASE_IMAGE_TAG"
+LABEL description="base on stainless403/webtop:$BASE_IMAGE_TAG"
 
 ARG TARGETPLATFORM
 ARG TARGETOS
@@ -26,9 +26,11 @@ ENV PGID         1000
 
 ARG APT_SOURCE_HOST="mirrors.ustc.edu.cn"
 
-# TODO 配置apt源
+RUN if [[ -n "$APT_SOURCE_HOST" ]]; then \
+    sed -i "s/archive.ubuntu.com/${APT_SOURCE_HOST}/g" /etc/apt/sources.list; \
+  fi
 
-RUN apt-get update -y && \
+RUN apt-get update -y --no-install-recommends && \
   apt-get install -y \
   curl \
   unrar \

@@ -8,10 +8,18 @@ set -e
 # 默认输入和输出文件
 PYPROJECT_FILE="${1:-pyproject.toml}"
 REQUIREMENTS_FILE="${2:-requirements.txt}"
+PYQT5_VER="${3}"
 
 # 检查输入文件是否存在
 if [[ ! -f "$PYPROJECT_FILE" ]]; then
     echo "错误：找不到文件 '$PYPROJECT_FILE'"
+    exit 1
+fi
+
+# 检查pyqt5ver参数
+if [[ -z "$PYQT5_VER" ]]; then
+    echo "错误：缺少pyqt5ver参数"
+    echo "用法: $0 [pyproject.toml] [requirements.txt] <pyqt5ver>"
     exit 1
 fi
 
@@ -34,14 +42,21 @@ awk '
         
         # 跳过注释行和空行
         if ($0 !~ /^[ \t]*#/ && $0 !~ /^[ \t]*$/) {
-            print $0
+            # 忽略以pyqt5开头的依赖（大小写不敏感）
+            if (tolower($0) !~ /^pyqt5/) {
+                print $0
+            }
         }
     }
 ' "$PYPROJECT_FILE" > "$REQUIREMENTS_FILE"
 
+# 在文件末尾追加指定版本的pyqt5
+echo "pyqt5==$PYQT5_VER" >> "$REQUIREMENTS_FILE"
+
 # 检查是否成功提取到依赖项
 if [[ -s "$REQUIREMENTS_FILE" ]]; then
     echo "成功提取 $(wc -l < "$REQUIREMENTS_FILE") 个依赖项到 '$REQUIREMENTS_FILE'"
+    echo "已添加 pyqt5==$PYQT5_VER"
     echo ""
     echo "生成的 requirements.txt 内容："
     echo "=========================="
