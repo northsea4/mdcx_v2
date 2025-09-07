@@ -28,20 +28,11 @@ ARG BUILDOS
 ARG BUILDARCH
 ARG BUILDVARIANT
 
-RUN echo "-----Image target platform details:"
-RUN echo "TARGETPLATFORM    : $TARGETPLATFORM"
-RUN echo "TARGETOS          : $TARGETOS"
-RUN echo "TARGETARCH        : $TARGETARCH"
-RUN echo "TARGETVARIANT     : $TARGETVARIANT"
-
-RUN echo "-----Image build platform details:"
-RUN echo "BUILDPLATFORM     : $BUILDPLATFORM"
-RUN echo "BUILDOS           : $BUILDOS"
-RUN echo "BUILDARCH         : $BUILDARCH"
-RUN echo "BUILDVARIANT      : $BUILDVARIANT"
-
-RUN apt-get update -y
-RUN apt-get install unrar curl -y
+# 显示平台信息
+RUN echo "-----Platform Information-----" && \
+  echo "Target Platform: $TARGETPLATFORM ($TARGETOS/$TARGETARCH/$TARGETVARIANT)" && \
+  echo "Build Platform: $BUILDPLATFORM ($BUILDOS/$BUILDARCH/$BUILDVARIANT)" && \
+  echo "PYPI Mirror: $PYPI_MIRROR"
 
 WORKDIR /app
 

@@ -18,8 +18,8 @@ ARG BUILDVARIANT
 
 # 输出构建信息（合并多个RUN命令）
 RUN echo "-----Image platform details:" && \
-    echo "Target: $TARGETPLATFORM ($TARGETOS/$TARGETARCH/$TARGETVARIANT)" && \
-    echo "Build: $BUILDPLATFORM ($BUILDOS/$BUILDARCH/$BUILDVARIANT)"
+  echo "Target: $TARGETPLATFORM ($TARGETOS/$TARGETARCH/$TARGETVARIANT)" && \
+  echo "Build: $BUILDPLATFORM ($BUILDOS/$BUILDARCH/$BUILDVARIANT)"
 
 COPY build-mdcx/.mdcx_src /tmp/mdcx
 WORKDIR /tmp/mdcx
@@ -29,45 +29,33 @@ ARG PYPI_MIRROR
 ARG DEFAULT_MIRROR="https://pypi.doubanio.com/simple"
 ENV PYPI_MIRROR=${PYPI_MIRROR:-${DEFAULT_MIRROR}}
 
-# cffi 相关依赖
-# RUN apt-get update && \
-#     apt-get install -y --no-install-recommends \
-#       gcc \
-#       libc-dev \
-#       libffi-dev && \
-#     # 清理APT缓存
-#     rm -rf /var/lib/apt/lists/*
-
-# RUN pip3 install cffi
-
-# RUN uv sync --all-extras --dev \
-#   && uv run pre-commit install \
-#   && uv pip install -e .
-
-# RUN python3 ./scripts/build.py
-
-RUN pip3 install pyqt5==5.15.6
+# 安装`pip`依赖
+RUN uv sync --all-extras --dev \
+  && uv run pre-commit install \
+  && uv pip install -e .
 
 # 保存版本信息
-RUN echo $APP_VERSION > /tmp/mdcx/dist/app-version
+RUN mkdir -p ./dist && echo $APP_VERSION > ./dist/app-version
 
 # 安装依赖并构建
-# RUN echo "PYPI_MIRROR: $PYPI_MIRROR" && \
-#     pip3 install -r requirements.txt && \
-#     # 一步完成PyInstaller构建
-#     pyinstaller -n MDCx \
-#       -F -w main.py \
-#       -p "./src" \
-#       --add-data "resources:resources" \
-#       --add-data "libs:." \
-#       --hidden-import socks \
-#       --hidden-import urllib3 \
-#       --hidden-import _cffi_backend \
-#       --collect-all curl_cffi && \
-#     # 保存版本信息
-#     echo $APP_VERSION > /tmp/mdcx/dist/app-version && \
-#     # 清理构建缓存
-#     rm -rf /tmp/mdcx/build /tmp/mdcx/__pycache__ /root/.cache/pip
+RUN echo "PYPI_MIRROR: $PYPI_MIRROR" && \
+  uv run pyinstaller -n MDCx \
+  -F -w main.py \
+  --add-data "resources:resources" \
+  --add-data "libs:." \
+  --hidden-import socks \
+  --hidden-import urllib3 \
+  --hidden-import _cffi_backend \
+  --hidden-import PIL \
+  --hidden-import PIL.Image \
+  --hidden-import PIL.ImageFile \
+  --hidden-import PIL.ImageFilter \
+  --hidden-import PIL._imaging \
+  --collect-all curl_cffi && \
+  # 保存版本信息
+  echo $APP_VERSION > /tmp/mdcx/dist/app-version && \
+  # 清理构建缓存
+  rm -rf /tmp/mdcx/build /tmp/mdcx/__pycache__ /root/.cache/pip
 
 # 使用Alpine作为最终镜像
 FROM alpine:latest

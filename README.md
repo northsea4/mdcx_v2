@@ -143,3 +143,162 @@ docker run -d --name mdcx \
 - 使用本软件时请遵守当地法律法规
 - 法律及使用后果由使用者自己承担
 - 禁止将本软件用于任何的商业用途
+
+## TODO
+- [ ] v2 images
+  - [ ] build-mdcx-base: build-mdcx/Dockerfile.build-mdcx-base
+    - [ ] amd64: name=stainless403/build-mdcx-base:v2-amd64
+    ```bash
+    docker buildx build \
+      --platform linux/amd64 \
+      -t stainless403/build-mdcx-base:v2-amd64-22 \
+      -f build-mdcx/Dockerfile.build-mdcx-base \
+      .
+    ```
+    - [ ] arm64: name=stainless403/build-mdcx-base:v2-arm64
+  - [ ] build-mdcx: build-mdcx/Dockerfile.build-mdcx
+    - [ ] amd64: name=stainless403/build-mdcx:v2-amd64
+    ```bash
+    docker buildx build \
+      --platform linux/amd64 \
+      --build-arg BASE_IMAGE_TAG=v2-amd64 \
+      --build-arg APP_VERSION=220250907 \
+      -t stainless403/build-mdcx:v2-amd64 \
+      -f build-mdcx/Dockerfile.build-mdcx \
+      .
+    ```
+    - [ ] arm64: name=stainless403/build-mdcx:v2-arm64
+---
+  - [ ] gui-base: gui-base/Dockerfile.gui-base
+    - [ ] amd64: name=stainless403/gui-base:v2-amd64
+    ```bash
+    docker buildx build \
+      --platform linux/amd64 \
+      -t stainless403/gui-base:v2-amd64 \
+      -f gui-base/Dockerfile.gui-base \
+      .
+    ```
+    - [ ] arm64: name=stainless403/gui-base:v2-arm64
+
+  - [ ] mdcx-builtin-gui-base: gui-base/Dockerfile.mdcx-builtin-gui-base
+    - [ ] amd64: name=stainless403/mdcx-builtin-gui-base:v2-amd64
+    ```bash
+    docker buildx build \
+      --no-cache \
+      --platform linux/amd64 \
+      --build-arg MDCX_BIN_IMAGE_TAG=v2-amd64 \
+      --build-arg BASE_IMAGE_TAG=v2-amd64 \
+      -t stainless403/mdcx-builtin-gui-base:v2-amd64 \
+      -f gui-base/Dockerfile.mdcx-builtin-gui-base \
+      .
+    ```
+    - [ ] arm64: name=stainless403/mdcx-builtin-gui-base:v2-arm64
+---
+  - [ ] webtop-base: webtop-base/Dockerfile.webtop-base
+    - [ ] amd64: name=stainless403/webtop-base:v2-amd64
+    ```bash
+    docker buildx build \
+      --platform linux/amd64 \
+      -t stainless403/webtop-base:v2-amd64 \
+      -f webtop-base/Dockerfile.webtop-base \
+      .
+    ```
+    - [ ] arm64: name=stainless403/webtop-base:v2-arm64
+---
+  # `linuxserver/webtop` 目前只支持web访问，支持RDP的镜像为`linuxserver/rdesktop`。
+  # 测试发现旧版webtop不支持python3.13，暂时放弃RDP了。
+  - [ ] webtop-base-legacy: webtop-base/Dockerfile.webtop-base-legacy
+    - [ ] amd64: name=stainless403/webtop-base-legacy:v2-amd64
+    ```bash
+    docker buildx build \
+      --platform linux/amd64 \
+      -t stainless403/webtop-base-legacy:v2-amd64 \
+      -f webtop-base/Dockerfile.webtop-base-legacy \
+      .
+    ```
+    - [ ] arm64: name=stainless403/webtop-base-legacy:v2-arm64
+---
+  - [ ] mdcx-builtin-webtop-base: webtop-base/Dockerfile.mdcx-builtin-webtop-base
+    - [ ] amd64: name=stainless403/mdcx-builtin-webtop-base:v2-amd64
+    ```bash
+    docker buildx build \
+      --no-cache \
+      --platform linux/amd64 \
+      --build-arg MDCX_BIN_IMAGE_TAG=v2-amd64 \
+      --build-arg BASE_IMAGE_TAG=v2-amd64 \
+      -t stainless403/mdcx-builtin-webtop-base:v2-amd64 \
+      -f webtop-base/Dockerfile.mdcx-builtin-webtop-base \
+      .
+    ```
+    - [ ] arm64: name=stainless403/mdcx-builtin-webtop-base:v2-arm64
+---
+  - [ ] mdcx-builtin-webtop-base-legacy: webtop-base/Dockerfile.mdcx-builtin-webtop-base-legacy
+    - [ ] amd64: name=stainless403/mdcx-builtin-webtop-base-legacy:v2-amd64
+    ```bash
+    docker buildx build \
+      --no-cache \
+      --platform linux/amd64 \
+      --build-arg MDCX_BIN_IMAGE_TAG=v2-amd64 \
+      --build-arg BASE_IMAGE_TAG=v2-amd64 \
+      -t stainless403/mdcx-builtin-webtop-base-legacy:v2-amd64 \
+      -f webtop-base/Dockerfile.mdcx-builtin-webtop-base-legacy \
+      .
+    ```
+    - [ ] arm64: name=stainless403/mdcx-builtin-webtop-base-legacy:v2-arm64
+
+
+### gui
+```bash
+docker run -d --name m001 \
+  -p 5800:5800 `#Web访问端口` \
+  -p 5900:5900 \
+  -v $(pwd)/data:/config `#容器系统数据` \
+  -v $(pwd)/mdcx-config:/mdcx-config `#配置文件目录` \
+  -v $(pwd)/mdcx-config/MDCx.config:/app/MDCx.config `#配置文件目录标记文件` \
+  -v $(pwd)/logs:/app/Log `#日志目录` \
+  -e TZ=Asia/Shanghai \
+  -e DISPLAY_WIDTH=1200 \
+  -e DISPLAY_HEIGHT=750 \
+  -e VNC_PASSWORD=  `#查看密码` \
+  -e USER_ID=$(id -u) `#运行应用的用户ID` \
+  -e GROUP_ID=$(id -g) `#运行应用的用户组ID` \
+  --restart unless-stopped \
+  stainless403/mdcx-builtin-gui-base:v2-amd64
+```
+
+### webtop
+```bash
+docker run -d --name m002 \
+  -p 13000:3000 `#Web访问端口` \
+  -v $(pwd)/data:/config `#容器系统数据` \
+  -v $(pwd)/mdcx-config:/mdcx-config `#配置文件目录` \
+  -v $(pwd)/mdcx-config/MDCx.config:/app/MDCx.config `#配置文件目录标记文件` \
+  -v $(pwd)/logs:/app/Log `#日志目录` \
+  -e TZ=Asia/Shanghai \
+  -e AUTO_LOGIN=false `#使用默认密码(abc)，且通过网页访问时，是否自动登录(true/false)` \
+  -e PUID=$(id -u) `#运行应用的用户ID` \
+  -e PGID=$(id -g) `#运行应用的用户组ID` \
+  --restart unless-stopped \
+  stainless403/mdcx-builtin-webtop-base:v2-amd64
+```
+
+### webtop-legacy
+```bash
+docker run -d --name m002_legacy \
+  -p 13001:3000 `#Web访问端口` \
+  -p 13389:3389 `#RDP访问端口` \
+  -v $(pwd)/data:/config `#容器系统数据` \
+  -v $(pwd)/mdcx-config:/mdcx-config `#配置文件目录` \
+  -v $(pwd)/mdcx-config/MDCx.config:/app/MDCx.config `#配置文件目录标记文件` \
+  -v $(pwd)/logs:/app/Log `#日志目录` \
+  -e TZ=Asia/Shanghai \
+  -e AUTO_LOGIN=false `#使用默认密码(abc)，且通过网页访问时，是否自动登录(true/false)` \
+  -e PUID=$(id -u) `#运行应用的用户ID` \
+  -e PGID=$(id -g) `#运行应用的用户组ID` \
+  --restart unless-stopped \
+  stainless403/mdcx-builtin-webtop-base-legacy:v2-amd64
+```
+
+```log
+[PYI-870:ERROR] Failed to load Python shared library '/tmp/_MEI7PiEnu/libpython3.13.so.1.0': /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.38' not found (required by /tmp/_MEI7PiEnu/libpython3.13.so.1.0)
+```

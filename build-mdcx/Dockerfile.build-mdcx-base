@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.4
 
-ARG BASE_IMAGE_TAG="ubuntu-24.04-v4"
+# ARG BASE_IMAGE_TAG="ubuntu-24.04-v4"
+ARG BASE_IMAGE_TAG="ubuntu-22.04-v4"
 FROM jlesage/baseimage-gui:$BASE_IMAGE_TAG
 
 LABEL maintainer="stainless403"
@@ -22,52 +23,50 @@ ARG PYPI_MIRROR
 ARG DEFAULT_MIRROR="https://pypi.doubanio.com/simple"
 ENV PYPI_MIRROR=${PYPI_MIRROR:-${DEFAULT_MIRROR}}
 
-# Python和工具版本
-# ARG PYINSTALLER_VERSION="6.3.0"
-# ARG POETRY_VERSION="1.7.1"
-
-# 所有安装和配置步骤
+# 显示平台信息
 RUN echo "-----Platform Information-----" && \
-    echo "Target Platform: $TARGETPLATFORM ($TARGETOS/$TARGETARCH/$TARGETVARIANT)" && \
-    echo "Build Platform: $BUILDPLATFORM ($BUILDOS/$BUILDARCH/$BUILDVARIANT)" && \
-    echo "PYPI Mirror: $PYPI_MIRROR" && \
-    # 配置apt源
-    if [[ -n "$APT_SOURCE_HOST" ]]; then \
-      sed -i "s/archive.ubuntu.com/${APT_SOURCE_HOST}/g" /etc/apt/sources.list && \
-      sed -i "s/ports.ubuntu.com/${APT_SOURCE_HOST}/g" /etc/apt/sources.list; \
-    fi && \
-    # 安装依赖
-    apt update -y && \
-    apt install -y --no-install-recommends \
-      software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa -y && \
-    apt update -y && \
-    apt install -y --no-install-recommends \
-      python3.13 \
-      python3.13-dev \
-      python3.13-venv \
-      python3-pyqt5 \
-      unrar \
-      wget \
-      curl \
-      upx-ucl \
-      binutils && \
-    # 安装pip
-    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.13 && \
-    # 设置Python默认版本
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 && \
-    # 安装Python工具（指定版本）
-    python3.13 -m pip install pyinstaller poetry --verbose -i $PYPI_MIRROR && \
-    # 安装UV包管理器
-    curl -sSfL https://astral.sh/uv/install.sh | sh && \
-    # 创建软链接确保工具可用
-    if ! which uv > /dev/null 2>&1; then \
-      ln -sf /root/.local/bin/uv /usr/local/bin/uv; \
-    fi && \
-    if ! which pyinstaller > /dev/null 2>&1; then \
-      ln -sf /root/.local/bin/pyinstaller /usr/local/sbin/pyinstaller; \
-    fi && \
-    # 清理
-    apt clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /root/.cache/pip
+  echo "Target Platform: $TARGETPLATFORM ($TARGETOS/$TARGETARCH/$TARGETVARIANT)" && \
+  echo "Build Platform: $BUILDPLATFORM ($BUILDOS/$BUILDARCH/$BUILDVARIANT)" && \
+  echo "PYPI Mirror: $PYPI_MIRROR"
+
+# TODO 配置apt源
+
+# 安装基础软件包和添加PPA源
+RUN apt update -y && \
+  apt install -y --no-install-recommends \
+  # https://github.com/nnstreamer/nnstreamer/issues/4432
+  # https://github.com/nnstreamer/nnstreamer/pull/4443/files
+  gpg-agent \
+  software-properties-common && \
+  add-apt-repository ppa:deadsnakes/ppa -y && \
+  apt update -y
+
+# 安装Python 3.13和相关依赖
+RUN apt install -y --no-install-recommends \
+  python3.13 \
+  python3.13-dev \
+  python3.13-venv \
+  python3-pyqt5 \
+  git \
+  unrar \
+  wget \
+  curl \
+  upx-ucl \
+  binutils
+
+# 安装pip并设置Python默认版本
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.13 && \
+  update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1
+
+# 安装工具
+RUN python3.13 -m pip install pyinstaller poetry uv --verbose -i $PYPI_MIRROR
+
+# 配置工具软链接
+RUN if ! which pyinstaller > /dev/null 2>&1; then \
+  ln -sf /root/.local/bin/pyinstaller /usr/local/sbin/pyinstaller; \
+  fi
+
+# 清理缓存和临时文件
+RUN apt clean && \
+  rm -rf /var/lib/apt/lists/* && \
+  rm -rf /root/.cache/pip

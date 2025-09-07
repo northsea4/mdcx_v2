@@ -7,7 +7,7 @@ ARG MDCX_BIN_IMAGE_TAG="latest"
 FROM stainless403/build-mdcx:$MDCX_BIN_IMAGE_TAG as provider
 
 
-FROM stainless403/webtop-base:$BASE_IMAGE_TAG
+FROM stainless403/webtop-base-legacy:$BASE_IMAGE_TAG
 
 LABEL maintainer="stainless403"
 LABEL description="base on stainless403/webtop-base:$BASE_IMAGE_TAG"
