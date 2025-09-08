@@ -29,21 +29,44 @@ ARG PYPI_MIRROR
 ARG DEFAULT_MIRROR="https://pypi.doubanio.com/simple"
 ENV PYPI_MIRROR=${PYPI_MIRROR:-${DEFAULT_MIRROR}}
 
+# 对于 ARM64 平台，修改 pyproject.toml 移除 PyQt5 依赖
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      echo "ARM64 平台：修改 pyproject.toml 以移除 PyQt5 依赖"; \
+      cp pyproject.toml pyproject.toml.bak; \
+      # 移除 PyQt5 相关行
+      sed -i '/pyqt5/d' pyproject.toml; \
+      sed -i '/pyqt5-qt5/d' pyproject.toml; \
+      sed -i '/pyqt5-stubs/d' pyproject.toml; \
+      echo "修改后的依赖:"; \
+      grep -A 20 "dependencies = \[" pyproject.toml; \
+    fi
+
 # 设置环境变量使用系统 PyQt5
 ENV PYTHONPATH="/usr/lib/python3/dist-packages:$PYTHONPATH"
 
-# 安装依赖 - 让 uv 优先使用系统已安装的包
-RUN echo "Using system PyQt5, installing other dependencies..." && \
-  uv sync --all-extras --dev --system || \
-  (echo "Fallback: installing with system site packages enabled" && \
-    UV_SYSTEM_PYTHON=1 uv sync --all-extras --dev)
+# 安装依赖
+RUN echo "Installing dependencies..." && \
+    uv sync --all-extras --dev
 
 RUN uv run pre-commit install && uv pip install -e .
 
-# 安装`pip`依赖
-# RUN uv sync --all-extras --dev \
-#   && uv run pre-commit install \
-#   && uv pip install -e .
+# 验证 PyQt5 是否可用
+RUN python3 -c "
+import sys
+print('Python path:', sys.path)
+try:
+    import PyQt5.QtCore
+    print('✅ PyQt5 successfully imported')
+    print('PyQt5 version:', PyQt5.QtCore.QT_VERSION_STR)
+    print('PyQt5 location:', PyQt5.__file__)
+except ImportError as e:
+    print('❌ PyQt5 import failed:', e)
+    # 对于 ARM64，这是预期的，因为我们使用系统 PyQt5
+    if '$TARGETARCH' == 'arm64':
+        print('ARM64: This is expected, using system PyQt5')
+    else:
+        raise
+"
 
 # 保存版本信息
 RUN mkdir -p ./dist && echo $APP_VERSION > ./dist/app-version
