@@ -16,7 +16,7 @@ ARG BUILDOS
 ARG BUILDARCH
 ARG BUILDVARIANT
 
-# 输出构建信息（合并多个RUN命令）
+# 输出构建信息
 RUN echo "-----Image platform details:" && \
   echo "Target: $TARGETPLATFORM ($TARGETOS/$TARGETARCH/$TARGETVARIANT)" && \
   echo "Build: $BUILDPLATFORM ($BUILDOS/$BUILDARCH/$BUILDVARIANT)"
