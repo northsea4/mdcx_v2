@@ -32,10 +32,11 @@ RUN echo "-----Platform Information-----" && \
 # TODO 配置apt源
 
 # 安装基础软件包和添加PPA源
+# gpg-agent:
+# https://github.com/nnstreamer/nnstreamer/issues/4432
+# https://github.com/nnstreamer/nnstreamer/pull/4443/files
 RUN apt update -y && \
   apt install -y --no-install-recommends \
-  # https://github.com/nnstreamer/nnstreamer/issues/4432
-  # https://github.com/nnstreamer/nnstreamer/pull/4443/files
   gpg-agent \
   software-properties-common && \
   add-apt-repository ppa:deadsnakes/ppa -y && \
