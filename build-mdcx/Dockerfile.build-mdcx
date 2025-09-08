@@ -29,10 +29,21 @@ ARG PYPI_MIRROR
 ARG DEFAULT_MIRROR="https://pypi.doubanio.com/simple"
 ENV PYPI_MIRROR=${PYPI_MIRROR:-${DEFAULT_MIRROR}}
 
+# 设置环境变量使用系统 PyQt5
+ENV PYTHONPATH="/usr/lib/python3/dist-packages:$PYTHONPATH"
+
+# 安装依赖 - 让 uv 优先使用系统已安装的包
+RUN echo "Using system PyQt5, installing other dependencies..." && \
+  uv sync --all-extras --dev --system || \
+  (echo "Fallback: installing with system site packages enabled" && \
+    UV_SYSTEM_PYTHON=1 uv sync --all-extras --dev)
+
+RUN uv run pre-commit install && uv pip install -e .
+
 # 安装`pip`依赖
-RUN uv sync --all-extras --dev \
-  && uv run pre-commit install \
-  && uv pip install -e .
+# RUN uv sync --all-extras --dev \
+#   && uv run pre-commit install \
+#   && uv pip install -e .
 
 # 保存版本信息
 RUN mkdir -p ./dist && echo $APP_VERSION > ./dist/app-version
