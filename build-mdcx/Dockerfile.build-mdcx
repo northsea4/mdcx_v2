@@ -29,8 +29,6 @@ ARG PYPI_MIRROR
 ARG DEFAULT_MIRROR="https://pypi.doubanio.com/simple"
 ENV PYPI_MIRROR=${PYPI_MIRROR:-${DEFAULT_MIRROR}}
 
-RUN apt update -y --no-install-recommends && apt install -y git
-
 # 对于 ARM64 平台，修改 pyproject.toml 移除 PyQt5 依赖
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
       echo "ARM64 平台：修改 pyproject.toml 以移除 PyQt5 依赖"; \
@@ -50,7 +48,7 @@ ENV PYTHONPATH="/usr/lib/python3/dist-packages:$PYTHONPATH"
 RUN echo "Installing dependencies..." && \
     uv sync --all-extras --dev
 
-RUN uv run pre-commit install && uv pip install -e .
+RUN uv pip install -e .
 
 # 验证 PyQt5 是否可用
 RUN python3 -c "import sys; print('Python path:', sys.path[:3])" && \
