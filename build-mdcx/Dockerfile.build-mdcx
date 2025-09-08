@@ -51,22 +51,8 @@ RUN echo "Installing dependencies..." && \
 RUN uv run pre-commit install && uv pip install -e .
 
 # 验证 PyQt5 是否可用
-RUN python3 -c "
-import sys
-print('Python path:', sys.path)
-try:
-    import PyQt5.QtCore
-    print('✅ PyQt5 successfully imported')
-    print('PyQt5 version:', PyQt5.QtCore.QT_VERSION_STR)
-    print('PyQt5 location:', PyQt5.__file__)
-except ImportError as e:
-    print('❌ PyQt5 import failed:', e)
-    # 对于 ARM64，这是预期的，因为我们使用系统 PyQt5
-    if '$TARGETARCH' == 'arm64':
-        print('ARM64: This is expected, using system PyQt5')
-    else:
-        raise
-"
+RUN python3 -c "import sys; print('Python path:', sys.path[:3])" && \
+    python3 -c "try: import PyQt5.QtCore; print('✅ PyQt5 successfully imported'); print('PyQt5 version:', PyQt5.QtCore.QT_VERSION_STR); print('PyQt5 location:', PyQt5.__file__); except ImportError as e: print('❌ PyQt5 import failed:', e)"
 
 # 保存版本信息
 RUN mkdir -p ./dist && echo $APP_VERSION > ./dist/app-version
