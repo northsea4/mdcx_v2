@@ -15,7 +15,7 @@ on:
       stage:
         description: Stage
         type: choice
-        default: prod
+        default: dev
         options:
           - dev
           - prod

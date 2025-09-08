@@ -15,12 +15,11 @@ on:
           - dev
           - prod
       baseImage:
-        description: Tag of base image `ubuntu`
+        description: Tag of base image `jlesage/baseimage-gui`
         type: choice
-        default: '22.04'
+        default: 'ubuntu-22.04-v4'
         options:
-          - '22.04'
-          - 'latest'
+          - 'ubuntu-22.04-v4'
 
 env:
   IMAGE_BASE: build-mdcx
