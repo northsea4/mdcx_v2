@@ -98,7 +98,6 @@ jobs:
             APP_VERSION=${{ steps.prepare.outputs.APP_VERSION }}
           platforms: |
             linux/amd64
-            # linux/arm64
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_KEY }}:${{ steps.imageInfo.outputs.latest }}
