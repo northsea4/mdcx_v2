@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
 
-ARG BASE_IMAGE_TAG=latest
+ARG BASE_IMAGE_TAG=v2-amd64
 FROM stainless403/build-mdcx-base:$BASE_IMAGE_TAG as builder
 
 LABEL maintainer="stainless403"
@@ -29,26 +29,9 @@ ARG PYPI_MIRROR
 ARG DEFAULT_MIRROR="https://pypi.doubanio.com/simple"
 ENV PYPI_MIRROR=${PYPI_MIRROR:-${DEFAULT_MIRROR}}
 
-# 对于 ARM64 平台，修改 pyproject.toml 移除 PyQt5 依赖
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-      echo "ARM64 平台：修改 pyproject.toml 以移除 PyQt5 依赖"; \
-      cp pyproject.toml pyproject.toml.bak; \
-      # 移除 PyQt5 相关行
-      sed -i '/pyqt5/d' pyproject.toml; \
-      sed -i '/pyqt5-qt5/d' pyproject.toml; \
-      sed -i '/pyqt5-stubs/d' pyproject.toml; \
-      echo "修改后的依赖:"; \
-      grep -A 20 "dependencies = \[" pyproject.toml; \
-    fi
-
-# 设置环境变量使用系统 PyQt5
-ENV PYTHONPATH="/usr/lib/python3/dist-packages:$PYTHONPATH"
-
 # 安装依赖
-RUN echo "Installing dependencies..." && \
-    uv sync --all-extras --dev
-
-RUN uv pip install -e .
+RUN uv sync --all-extras --dev && \
+  uv pip install -e .
 
 # 保存版本信息
 RUN mkdir -p ./dist && echo $APP_VERSION > ./dist/app-version
@@ -67,6 +50,8 @@ RUN echo "PYPI_MIRROR: $PYPI_MIRROR" && \
   --hidden-import PIL.ImageFile \
   --hidden-import PIL.ImageFilter \
   --hidden-import PIL._imaging \
+  --hidden-import PyQt5 \
+  --collect-all PyQt5 \
   --collect-all curl_cffi && \
   # 保存版本信息
   echo $APP_VERSION > /tmp/mdcx/dist/app-version && \

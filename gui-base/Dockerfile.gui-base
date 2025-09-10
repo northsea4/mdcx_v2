@@ -41,16 +41,50 @@ ARG APT_SOURCE_HOST="mirrors.ustc.edu.cn"
 
 # TODO 配置apt源
 
-# 安装一些必须的软件包
-RUN apt-get update -y && \
-  apt-get install -y --no-install-recommends \
+# 安装软件包
+RUN apt update -y && \
+  apt install -y --no-install-recommends \
   curl \
   unrar \
   locales \
   # ImportError: libGL.so.1: cannot open shared object file: No such file or directory
   libgl1 \
+  # 字体
   fonts-wqy-zenhei \
-  fonts-noto-color-emoji
+  fonts-noto-color-emoji \
+  # X11和xcb相关库
+  libglib2.0-0 \
+  libxcb1 \
+  libxcb-xinerama0 \
+  libxcb-randr0 \
+  libxcb-cursor0 \
+  libxcb-keysyms1 \
+  libxcb-image0 \
+  libxcb-shm0 \
+  libxcb-icccm4 \
+  libxcb-sync1 \
+  libxcb-xfixes0 \
+  libxcb-shape0 \
+  libxcb-render-util0 \
+  libxcb-render0 \
+  libxcb-glx0 \
+  libx11-6 \
+  libxext6 \
+  libxrender1 \
+  libfontconfig1 \
+  libfreetype6 \
+  libglu1-mesa \
+  libxkbcommon-x11-0 \
+  libxkbcommon0 \
+  libdbus-1-3 && \
+  # 清理缓存
+  apt-get autoremove -y; \
+  apt-get autoclean; \
+  apt-get clean; \
+  rm -rf /var/lib/apt/lists/*; \
+  rm -rf /var/cache/apt/archives/*; \
+  rm -rf /tmp/*; \
+  rm -rf /var/tmp/*
 
 
 RUN export LANG=zh_CN.UTF-8 && locale-gen zh_CN.UTF-8

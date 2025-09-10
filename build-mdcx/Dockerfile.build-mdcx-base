@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1.4
 
-# ARG BASE_IMAGE_TAG="ubuntu-24.04-v4"
-ARG BASE_IMAGE_TAG="ubuntu-22.04-v4"
+ARG BASE_IMAGE_TAG="ubuntu-24.04-v4"
 FROM jlesage/baseimage-gui:$BASE_IMAGE_TAG
 
 LABEL maintainer="stainless403"
@@ -31,43 +30,22 @@ RUN echo "-----Platform Information-----" && \
 
 # TODO 配置apt源
 
-# 安装基础软件包和添加PPA源
-# gpg-agent:
-# https://github.com/nnstreamer/nnstreamer/issues/4432
-# https://github.com/nnstreamer/nnstreamer/pull/4443/files
-RUN apt update -y && \
-  apt install -y --no-install-recommends \
-  gpg-agent \
-  software-properties-common && \
-  add-apt-repository ppa:deadsnakes/ppa -y && \
-  apt update -y
-
-# 安装Python 3.13和相关依赖
-RUN apt install -y --no-install-recommends \
-  python3.13 \
-  python3.13-dev \
-  python3.13-venv \
-  python3-pyqt5 \
-  git \
-  unrar \
-  wget \
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends \
   curl \
-  upx-ucl \
-  binutils
+  unrar \
+  ca-certificates \
+  binutils && \
+  # 清理
+  apt-get autoremove -y; \
+  apt-get autoclean; \
+  rm -rf /var/lib/apt/lists/*
 
-# 安装pip并设置Python默认版本
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.13 && \
-  update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
-# 安装工具
-RUN python3.13 -m pip install pyinstaller poetry uv --verbose -i $PYPI_MIRROR
+RUN sh /uv-installer.sh && rm /uv-installer.sh
 
-# 配置工具软链接
-RUN if ! which pyinstaller > /dev/null 2>&1; then \
-  ln -sf /root/.local/bin/pyinstaller /usr/local/sbin/pyinstaller; \
-  fi
+ENV PATH="/root/.local/bin/:$PATH"
 
-# 清理缓存和临时文件
-RUN apt clean && \
-  rm -rf /var/lib/apt/lists/* && \
-  rm -rf /root/.cache/pip
+# 安装Python 3.13
+RUN uv python install 3.13

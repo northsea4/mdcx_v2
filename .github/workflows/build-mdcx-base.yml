@@ -17,8 +17,9 @@ on:
       baseImage:
         description: Tag of base image `jlesage/baseimage-gui`
         type: choice
-        default: 'ubuntu-22.04-v4'
+        default: 'ubuntu-24.04-v4'
         options:
+          - 'ubuntu-24.04-v4'
           - 'ubuntu-22.04-v4'
 
 env:
@@ -26,7 +27,7 @@ env:
   IMAGE_KEY: build-mdcx-base
   PYPI_MIRROR: https://pypi.org/simple
   APT_SOURCE_HOST: ''
-  ENABLE_TG_NOTIFICATION: ${{ secrets.ENABLE_TG_NOTIFICATION }}
+  ENABLE_TG_NOTIFICATION: ${{ vars.ENABLE_TG_NOTIFICATION }}
 
 jobs:
   build:
@@ -59,10 +60,10 @@ jobs:
         id: imageInfo
         run: |
           if [[ "${{ github.event.inputs.stage }}" == "dev" ]]; then
-            echo "latest=latest-dev" >> $GITHUB_OUTPUT
+            echo "latest=v2-latest-dev" >> $GITHUB_OUTPUT
             echo "version=${{ steps.versions.outputs.BUILD_MDCX_BASE_VERSION }}-dev" >> $GITHUB_OUTPUT
           else
-            echo "latest=latest" >> $GITHUB_OUTPUT
+            echo "latest=v2-latest" >> $GITHUB_OUTPUT
             echo "version=${{ steps.versions.outputs.BUILD_MDCX_BASE_VERSION }}" >> $GITHUB_OUTPUT
           fi
       - 
@@ -80,7 +81,7 @@ jobs:
             BASE_IMAGE_TAG=${{ github.event.inputs.baseImage }}
           platforms: |
             linux/amd64
-            linux/arm64
+            # linux/arm64
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_KEY }}:${{ steps.imageInfo.outputs.latest }}

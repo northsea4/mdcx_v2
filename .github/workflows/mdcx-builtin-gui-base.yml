@@ -5,10 +5,10 @@ on:
     branches:
       - none
 
-  workflow_run:
-    workflows: [Image build-mdcx CI]
-    types: [completed]
-    branches: [main]
+  # workflow_run:
+  #   workflows: [Image build-mdcx CI]
+  #   types: [completed]
+  #   branches: [main]
 
   workflow_dispatch:
     inputs:
@@ -22,19 +22,18 @@ on:
       baseImage:
         description: Tag of base image `gui-base`
         type: choice
-        default: 'latest'
+        default: 'v2-latest'
         options:
-          - 'ubuntu-22.04'
-          - 'latest'
+          - 'v2-latest'
       binTag:
         description: Tag of app bin image
-        default: 'latest'
+        default: 'v2-latest'
 
 env:
   IMAGE_BASE: gui-base
   IMAGE_KEY: mdcx-builtin-gui-base
   APT_SOURCE_HOST: ''
-  ENABLE_TG_NOTIFICATION: ${{ secrets.ENABLE_TG_NOTIFICATION }}
+  ENABLE_TG_NOTIFICATION: ${{ vars.ENABLE_TG_NOTIFICATION }}
 
 jobs:
   build:
@@ -106,10 +105,10 @@ jobs:
         id: imageInfo
         run: |
           if [[ "${{ steps.buildInfo.outputs.STAGE }}" == "dev" ]]; then
-            echo "latest=latest-dev" >> $GITHUB_OUTPUT
+            echo "latest=v2-latest-dev" >> $GITHUB_OUTPUT
             echo "version=${{ steps.appInfo.outputs.APP_VERSION }}-dev" >> $GITHUB_OUTPUT
           else
-            echo "latest=latest" >> $GITHUB_OUTPUT
+            echo "latest=v2-latest" >> $GITHUB_OUTPUT
             echo "version=${{ steps.appInfo.outputs.APP_VERSION }}" >> $GITHUB_OUTPUT
           fi
       - 
@@ -128,7 +127,7 @@ jobs:
             MDCX_BIN_IMAGE_TAG=${{ steps.buildInfo.outputs.BIN_TAG }}
           platforms: |
             linux/amd64
-            linux/arm64
+            # linux/arm64
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_KEY }}:${{ steps.imageInfo.outputs.latest }}

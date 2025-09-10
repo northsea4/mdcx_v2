@@ -21,14 +21,14 @@ on:
           - prod
       baseImage:
         description: Tag of base image `build-mdcx-base`
-        default: 'latest'
+        default: 'v2-latest'
 
 env:
   IMAGE_BASE: build-mdcx
   IMAGE_KEY: build-mdcx
   PYPI_MIRROR: https://pypi.org/simple
   APT_SOURCE_HOST: ''
-  ENABLE_TG_NOTIFICATION: ${{ secrets.ENABLE_TG_NOTIFICATION }}
+  ENABLE_TG_NOTIFICATION: ${{ vars.ENABLE_TG_NOTIFICATION }}
   MDCX_TAG: ${{ vars.MDCX_TAG }}
 
 jobs:
@@ -72,10 +72,10 @@ jobs:
         id: imageInfo
         run: |
           if [[ "${{ github.event.inputs.stage }}" == "dev" ]]; then
-            echo "latest=latest-dev" >> $GITHUB_OUTPUT
+            echo "latest=v2-latest-dev" >> $GITHUB_OUTPUT
             echo "version=${{ steps.prepare.outputs.APP_VERSION }}-dev" >> $GITHUB_OUTPUT
           else
-            echo "latest=latest" >> $GITHUB_OUTPUT
+            echo "latest=v2-latest" >> $GITHUB_OUTPUT
             echo "version=${{ steps.prepare.outputs.APP_VERSION }}" >> $GITHUB_OUTPUT
           fi
 
@@ -98,7 +98,7 @@ jobs:
             APP_VERSION=${{ steps.prepare.outputs.APP_VERSION }}
           platforms: |
             linux/amd64
-            linux/arm64
+            # linux/arm64
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_KEY }}:${{ steps.imageInfo.outputs.latest }}
