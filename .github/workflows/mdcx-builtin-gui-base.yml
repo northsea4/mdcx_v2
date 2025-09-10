@@ -25,6 +25,7 @@ on:
         default: 'v2-latest'
         options:
           - 'v2-latest'
+          - 'v2-latest-dev'
       binTag:
         description: Tag of app bin image
         default: 'v2-latest'

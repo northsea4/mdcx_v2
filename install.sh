@@ -63,9 +63,9 @@ echo "📖 下面请你回答几个问题，以完成MDCx Docker版的安装。"
 echo ""
 echo "❓ 请选择容器部署模版（输入数字进行选择）："
 echo " 1) mdcx-builtin-gui-base      轻量版，内置编译版应用，通过网页使用"
-echo " 2) mdcx-builtin-webtop-base   重量版，内置编译版应用，通过网页和远程桌面使用"
-echo " 3) mdcx-src-gui-base          轻量版，自部署源码，通过网页使用"
-echo " 4) mdcx-src-webtop-base       重量版，自部署源码，通过网页和远程桌面使用"
+# echo " 2) mdcx-builtin-webtop-base   重量版，内置编译版应用，通过网页和远程桌面使用"
+# echo " 3) mdcx-src-gui-base          轻量版，自部署源码，通过网页使用"
+# echo " 4) mdcx-src-webtop-base       重量版，自部署源码，通过网页和远程桌面使用"
 
 read -p "📌 请输入数字（1-4）: " TEMPLATE_NUM
 
@@ -73,15 +73,15 @@ case $TEMPLATE_NUM in
   1)
     TEMPLATE_NAME="mdcx-builtin-gui-base"
     ;;
-  2)
-    TEMPLATE_NAME="mdcx-builtin-webtop-base"
-    ;;
-  3)
-    TEMPLATE_NAME="mdcx-src-gui-base"
-    ;;
-  4)
-    TEMPLATE_NAME="mdcx-src-webtop-base"
-    ;;
+  # 2)
+  #   TEMPLATE_NAME="mdcx-builtin-webtop-base"
+  #   ;;
+  # 3)
+  #   TEMPLATE_NAME="mdcx-src-gui-base"
+  #   ;;
+  # 4)
+  #   TEMPLATE_NAME="mdcx-src-webtop-base"
+  #   ;;
   *)
     echo "无效的输入！请输入数字（1-4）."
     exit 1
