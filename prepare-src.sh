@@ -85,7 +85,7 @@ generate_app_version() {
   published_at=$(echo "$published_at" | tr -dc '0-9')
 
   # 取前8位数字作为年月日，前缀为d
-  echo "d${published_at:0:8}"
+  echo "v2-${published_at:0:8}"
 }
 
 find_release_by_tag_name() {
@@ -211,6 +211,7 @@ get_release_info() {
     return 1
   fi
 
+  # TODO 如果是数字版本(220250909)则直接使用，否则根据发布时间生成版本号
   release_version=$(generate_app_version "$published_at")
 
   tar_url=$(printf '%s' "$release" | jq -r '.tarball_url')
