@@ -171,7 +171,12 @@ if [ -d /etc/cont-init.d ]; then
     find /etc/cont-init.d -maxdepth 1 -type f | sort | while read -r f; do
         fname="$(basename "${f}")"
 
-        if [ ! -x "${f}" ]; then
+        # https://man7.org/linux/man-pages/man2/access.2.html
+        # If the calling process has appropriate privileges (i.e., is superuser), 
+        # POSIX.1-2001 permits an implementation to indicate success for an X_OK check 
+        # even if none of the execute file permission bits are set. 
+        # For now, all files inside /etc/cont-init.d are executable, but we keep this for future non-executable files
+        if ! [ -x "${f}" ] || ! ls -ld "${f}" | grep -q '^-.*x'; then
             echo "WARNING: not executable, ignoring." | log_script "${fname}"
             continue
         fi
