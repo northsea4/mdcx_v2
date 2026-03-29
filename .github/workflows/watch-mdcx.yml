@@ -17,6 +17,8 @@ env:
   RELEASE_URL: 'https://api.github.com/repos/sqzw-x/mdcx/releases/latest'
   ENABLE_WATCH: ${{ vars.ENABLE_WATCH_MDCX_RELEASE }}
   MDCX_TAG: ${{ vars.MDCX_TAG }}
+  MDCX_SRC_TAG: ${{ vars.MDCX_SRC_TAG }}
+  MDCX_SRC_REPO: ${{ vars.MDCX_SRC_REPO }}
   GITHUB_CURRENT_REPO: ${{ github.event.repository.name }}
   GITHUB_API_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
   GITHUB_OWNER: ${{ github.repository_owner }}
@@ -63,8 +65,19 @@ jobs:
           VAR_VERSION="MDCX_LATEST_VERSION"
           VAR_TIME="MDCX_LATEST_TIME"
 
-          REPO="sqzw-x/mdcx"
-          TAG_NAME="${{ env.MDCX_TAG || 'latest' }}"
+          REPO="${{ env.MDCX_SRC_REPO || 'sqzw-x/mdcx' }}"
+          TAG_NAME="${{ env.MDCX_SRC_TAG }}"
+          if [[ -z "$TAG_NAME" ]]; then
+            TAG_NAME="${{ env.MDCX_TAG }}"
+          fi
+          if [[ -z "$TAG_NAME" ]]; then
+            if [[ "$REPO" == "sqzw-x/mdcx" ]]; then
+              TAG_NAME="daily_release"
+            else
+              TAG_NAME="latest"
+            fi
+          fi
+          echo "✅ 使用版本标签: $TAG_NAME"
 
           info=$(get_release_info "$REPO" "$TAG_NAME")
           if [[ $? -ne 0 ]]; then

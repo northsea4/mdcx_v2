@@ -15,5 +15,7 @@
 | MDCX_LATEST_VERSION | 应用版本 | 20230308 | 是 |
 | ENABLE_WATCH_MDCX_RELEASE | 是否监控新版应用 | true | 是 |
 | MDCX_TAG | 指定tag | latest | 否 |
+| MDCX_SRC_TAG | 指定上游源码tag(优先于MDCX_TAG) | 空 | 否 |
+| MDCX_SRC_REPO | 指定上游源码仓库(owner/repo) | sqzw-x/mdcx | 否 |
 | ENABLE_TG_NOTIFICATION | 是否发送TG通知 | false | 是 |
 | ENABLE_TG_VERBOSE_NOTIFICATION | 是否发送不重要的TG通知 | false | 是 |

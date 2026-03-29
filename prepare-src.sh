@@ -12,7 +12,9 @@ then
   exit 1
 fi
 
-release_tag="daily_release"
+release_tag="${MDCX_SRC_TAG:-}"
+default_repo="sqzw-x/mdcx"
+repo="${MDCX_SRC_REPO:-$default_repo}"
 
 while [[ $# -gt 0 ]]
 do
@@ -25,6 +27,10 @@ do
       ;;
     --tag)
       release_tag="$2"
+      shift 2
+      ;;
+    --repo)
+      repo="$2"
       shift 2
       ;;
     --verbose)
@@ -47,19 +53,44 @@ done
 
 # 显示帮助
 if [[ -n "$help" ]]; then
-  echo "用法: $0 [--context <context>] [--tag <release_tag>] [--verbose] [--dry]"
+  echo "用法: $0 [--context <context>] [--tag <release_tag>] [--repo <owner/repo>] [--verbose] [--dry]"
   echo "  --context <context>   指定源码解压目录，默认为当前目录"
-  echo "  --tag <release_tag>   指定要下载的版本标签，默认为'daily_release'"
+  echo "  --tag <release_tag>   指定要下载的版本标签；不指定时按repo自动选择，也可用环境变量MDCX_SRC_TAG"
+  echo "  --repo <owner/repo>   指定源码仓库，默认'sqzw-x/mdcx'，也可用环境变量MDCX_SRC_REPO"
   echo "  --verbose             显示详细的下载过程"
   echo "  --dry                 只进行检查，不实际下载"
   exit 0
 fi
 
-if [[ -n "$release_tag" ]]; then
-  echo "✅ 使用指定的版本标签: $release_tag"
-else
-  echo "❌ 未指定版本标签"
+if [[ -z "$repo" ]]; then
+  echo "❌ 未指定源码仓库"
   exit 1
+fi
+
+if ! echo "$repo" | grep -Eq '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$'; then
+  echo "❌ 源码仓库格式错误: $repo (正确格式: owner/repo)"
+  exit 1
+fi
+
+echo "✅ 使用源码仓库: $repo"
+
+get_default_release_tag_by_repo() {
+  local target_repo="$1"
+  case "$target_repo" in
+    sqzw-x/mdcx)
+      echo "daily_release"
+      ;;
+    *)
+      echo "latest"
+      ;;
+  esac
+}
+
+if [[ -z "$release_tag" ]]; then
+  release_tag="$(get_default_release_tag_by_repo "$repo")"
+  echo "✅ 未指定版本标签，已按仓库自动选择: $release_tag"
+else
+  echo "✅ 使用指定的版本标签: $release_tag"
 fi
 
 if [[ -z "$context" ]]; then
@@ -238,7 +269,7 @@ get_release_info() {
   return 0
 }
 
-REPO="sqzw-x/mdcx"
+REPO="$repo"
 TAG_NAME="${release_tag}"
 
 info=$(get_release_info "$REPO" "$TAG_NAME")

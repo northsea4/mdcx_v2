@@ -30,6 +30,8 @@ env:
   APT_SOURCE_HOST: ''
   ENABLE_TG_NOTIFICATION: ${{ vars.ENABLE_TG_NOTIFICATION }}
   MDCX_TAG: ${{ vars.MDCX_TAG }}
+  MDCX_SRC_TAG: ${{ vars.MDCX_SRC_TAG }}
+  MDCX_SRC_REPO: ${{ vars.MDCX_SRC_REPO }}
 
 jobs:
   build:
@@ -47,7 +49,17 @@ jobs:
         name: Prepare App source
         id: prepare
         run: |
-          bash ./prepare-src.sh --verbose --context $IMAGE_BASE --tag ${{ env.MDCX_TAG || 'latest' }}
+          SRC_REPO=${{ env.MDCX_SRC_REPO || 'sqzw-x/mdcx' }}
+          SRC_TAG=${{ env.MDCX_SRC_TAG }}
+          if [[ -z "$SRC_TAG" ]]; then
+            SRC_TAG=${{ env.MDCX_TAG }}
+          fi
+
+          if [[ -n "$SRC_TAG" ]]; then
+            bash ./prepare-src.sh --verbose --context $IMAGE_BASE --repo "$SRC_REPO" --tag "$SRC_TAG"
+          else
+            bash ./prepare-src.sh --verbose --context $IMAGE_BASE --repo "$SRC_REPO"
+          fi
       -
         name: Prepare Version Values
         uses: cardinalby/export-env-action@v2
