@@ -24,7 +24,7 @@ bash -c "$(wget https://raw.githubusercontent.com/northsea4/mdcx-docker/main/ins
 > 以下的步骤是手动部署的详细说明，即使使用了脚本部署，也请务必阅读一下了解更多细节，如安全、更新等。
 
 
-[stainless403/mdcx-builtin-gui-base](https://hub.docker.com/r/stainless403/mdcx-builtin-gui-base)镜像已内置编译好的MDCx。如果想使用本地MDCx源码版的，请使用[stainless403/mdcx-src-gui-base](https://hub.docker.com/r/stainless403/mdcx-src-gui-base)镜像([🔗 查看部署说明](https://github.com/northsea4/mdcx-docker/blob/main/gui-base/mdcx-src.md))。
+[stainless403/mdcx-builtin-gui-base](https://hub.docker.com/r/stainless403/mdcx-builtin-gui-base)镜像已内置编译好的MDCx，直接部署即可使用。
 
 
 ### 1.1 准备项目目录
@@ -43,7 +43,6 @@ mdcx-docker
   |-- .env ------环境变量文件
   |-- .env.sample ------环境变量示例文件
   |-- .env.versions ------应用版本文件
-  |-- gui-base-src.sample.yml
   |-- gui-base-builtin.sample.yml -------容器部署配置示例
   |-- docker-compose.yml -------容器部署配置
 ```

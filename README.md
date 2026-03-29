@@ -13,7 +13,6 @@
 
 ## 镜像
 > 「builtin」表示内置已编译的应用，不需要额外下载安装包。
-> 「src」表示使用应用的python源码运行，需要额外下载源码。
 
 > 「gui」是最简单的版本，通过Web访问，且只能看到应用窗口。
 > 「webtop」有比较完整的桌面环境，可以通过Web访问或RDP访问。
@@ -22,8 +21,6 @@
 | --- | --- | --- | --- | --- | --- |
 | [mdcx-builtin-gui-base](https://hub.docker.com/r/stainless403/mdcx-builtin-gui-base/tags) | [查看](https://github.com/northsea4/mdcx-docker/blob/main/gui-base/mdcx-builtin.md) | ✅ |  |  |  |
 | [mdcx-builtin-webtop-base](https://hub.docker.com/r/stainless403/mdcx-builtin-webtop-base/tags) | [查看](https://github.com/northsea4/mdcx-docker/blob/main/webtop-base/mdcx-builtin.md) | ✅ | ✅ | ✅ | ✅ |
-| [mdcx-src-gui-base](https://hub.docker.com/r/stainless403/mdcx-src-gui-base/tags) | [查看](https://github.com/northsea4/mdcx-docker/blob/main/gui-base/mdcx-src.md) | ✅ |  |  |  |
-| [mdcx-src-webtop-base](https://hub.docker.com/r/stainless403/mdcx-src-webtop-base/tags) | [查看](https://github.com/northsea4/mdcx-docker/blob/main/webtop-base/mdcx-src.md) | ✅ | ✅ | ✅ | ✅ |
 
 
 ## 使用脚本部署
@@ -112,8 +109,8 @@ docker run -d --name mdcx \
 
 | 镜像 | 默认 | 方式1 |
 | --- | --- | --- |
-| [mdcx-builtin-gui-base](https://hub.docker.com/r/stainless403/mdcx-builtin-gui-base/tags)<br>[mdcx-src-gui-base](https://hub.docker.com/r/stainless403/mdcx-src-gui-base/tags) | 空 | 设置环境变量`VNC_PASSWORD` |
-| [mdcx-builtin-webtop-base](https://hub.docker.com/r/stainless403/mdcx-builtin-webtop-base/tags)<br>[mdcx-src-webtop-base](https://hub.docker.com/r/stainless403/mdcx-src-webtop-base/tags) | abc/abc | `docker exec -it 容器名称 passwd abc`<br>或进入桌面使用命令行工具执行`passwd abc` |
+| [mdcx-builtin-gui-base](https://hub.docker.com/r/stainless403/mdcx-builtin-gui-base/tags) | 空 | 设置环境变量`VNC_PASSWORD` |
+| [mdcx-builtin-webtop-base](https://hub.docker.com/r/stainless403/mdcx-builtin-webtop-base/tags) | abc/abc | `docker exec -it 容器名称 passwd abc`<br>或进入桌面使用命令行工具执行`passwd abc` |
 
 
 ## 申明

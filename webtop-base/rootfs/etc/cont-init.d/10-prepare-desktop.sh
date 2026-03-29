@@ -11,7 +11,7 @@
 # 需要注意的是，当使用`/usr/bin/with-contenv`时，直接执行 `/path/to/script.sh` ，会改变`$HOME`为`/root`，
 # 这会导致一些奇怪的问题，比如python应用无法正常运行。
 # 对于本脚本，使用`#!/usr/bin/with-contenv bash`头部是可行的。
-# 但对于`run-src.sh`，则不可行，具体可以到`run-src.sh`中查看。
+# 因此运行应用的启动脚本通常保持 `#!/bin/bash`，再在脚本内部按需处理环境变量。
 
 prepare() {
   while true
