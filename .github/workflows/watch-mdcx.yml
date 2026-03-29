@@ -65,10 +65,22 @@ jobs:
           VAR_VERSION="MDCX_LATEST_VERSION"
           VAR_TIME="MDCX_LATEST_TIME"
 
-          REPO="${{ env.MDCX_SRC_REPO || 'sqzw-x/mdcx' }}"
+          REPO="${{ env.MDCX_SRC_REPO }}"
           TAG_NAME="${{ env.MDCX_SRC_TAG }}"
+
+          # 回退读取仓库根目录 .env
+          if [[ -z "$REPO" && -f .env ]]; then
+            REPO=$(grep -E '^MDCX_SRC_REPO=' .env | tail -n1 | cut -d '=' -f2-)
+          fi
+          if [[ -z "$TAG_NAME" && -f .env ]]; then
+            TAG_NAME=$(grep -E '^MDCX_SRC_TAG=' .env | tail -n1 | cut -d '=' -f2-)
+          fi
+
           if [[ -z "$TAG_NAME" ]]; then
             TAG_NAME="${{ env.MDCX_TAG }}"
+          fi
+          if [[ -z "$REPO" ]]; then
+            REPO='sqzw-x/mdcx'
           fi
           if [[ -z "$TAG_NAME" ]]; then
             if [[ "$REPO" == "sqzw-x/mdcx" ]]; then

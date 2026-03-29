@@ -12,6 +12,13 @@ then
   exit 1
 fi
 
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+
+# 支持从仓库根目录 .env 读取默认值（命令行参数优先）
+if [[ -f "$SCRIPT_DIR/.env" ]]; then
+  . "$SCRIPT_DIR/.env"
+fi
+
 release_tag="${MDCX_SRC_TAG:-}"
 default_repo="sqzw-x/mdcx"
 repo="${MDCX_SRC_REPO:-$default_repo}"
@@ -55,8 +62,8 @@ done
 if [[ -n "$help" ]]; then
   echo "用法: $0 [--context <context>] [--tag <release_tag>] [--repo <owner/repo>] [--verbose] [--dry]"
   echo "  --context <context>   指定源码解压目录，默认为当前目录"
-  echo "  --tag <release_tag>   指定要下载的版本标签；不指定时按repo自动选择，也可用环境变量MDCX_SRC_TAG"
-  echo "  --repo <owner/repo>   指定源码仓库，默认'sqzw-x/mdcx'，也可用环境变量MDCX_SRC_REPO"
+  echo "  --tag <release_tag>   指定要下载的版本标签；不指定时按repo自动选择，也可用 .env/环境变量MDCX_SRC_TAG"
+  echo "  --repo <owner/repo>   指定源码仓库，默认'sqzw-x/mdcx'，也可用 .env/环境变量MDCX_SRC_REPO"
   echo "  --verbose             显示详细的下载过程"
   echo "  --dry                 只进行检查，不实际下载"
   exit 0
