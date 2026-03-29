@@ -69,9 +69,9 @@ jobs:
           fi
 
           if [[ -n "$SRC_TAG" ]]; then
-            bash ./prepare-src.sh --verbose --context $IMAGE_BASE --repo "$SRC_REPO" --tag "$SRC_TAG"
+            bash ./prepare-src.sh --verbose --context $IMAGE_BASE --repo "$SRC_REPO" --tag "$SRC_TAG" --token "${{ secrets.GITHUB_TOKEN }}"
           else
-            bash ./prepare-src.sh --verbose --context $IMAGE_BASE --repo "$SRC_REPO"
+            bash ./prepare-src.sh --verbose --context $IMAGE_BASE --repo "$SRC_REPO" --token "${{ secrets.GITHUB_TOKEN }}"
           fi
       -
         name: Prepare Version Values

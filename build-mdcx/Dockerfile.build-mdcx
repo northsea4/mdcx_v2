@@ -26,7 +26,8 @@ WORKDIR /tmp/mdcx
 
 # 设置PyPI镜像
 ARG PYPI_MIRROR
-ARG DEFAULT_MIRROR="https://pypi.doubanio.com/simple"
+# ARG DEFAULT_MIRROR="https://pypi.doubanio.com/simple"
+# ARG DEFAULT_MIRROR=""
 ENV PYPI_MIRROR=${PYPI_MIRROR:-${DEFAULT_MIRROR}}
 
 # 安装依赖

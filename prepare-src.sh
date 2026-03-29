@@ -41,7 +41,11 @@ find_release_by_tag_name() {
   local found=false
   local page=1
   while true; do
-    local response=$(curl -s "${url}?per_page=100&page=${page}")
+    local curl_cmd="curl -s"
+    if [[ -n "$github_token" ]]; then
+      curl_cmd="$curl_cmd -H 'Authorization: Bearer $github_token'"
+    fi
+    local response=$(eval "$curl_cmd \"${url}?per_page=100&page=${page}\"")
     if [[ -z "$response" ]]; then
       break
     fi
@@ -89,7 +93,11 @@ fetch_release_info() {
     url="https://api.github.com/repos/${repo}/releases/latest"
   fi
   
-  curl -s "${url}" > "$temp_file"
+  local curl_cmd="curl -s"
+  if [[ -n "$github_token" ]]; then
+    curl_cmd="$curl_cmd -H 'Authorization: Bearer $github_token'"
+  fi
+  eval "$curl_cmd \"${url}\"" > "$temp_file"
   if [[ ! -s "$temp_file" ]]; then
     rm -f "$temp_file"
     echo "❌ 无法获取release信息！"
@@ -180,10 +188,11 @@ get_release_info() {
 
 print_help() {
   # 显示帮助
-  echo "用法: $0 [--context <context>] [--tag <release_tag>] [--repo <owner/repo>] [--verbose] [--dry]"
+  echo "用法: $0 [--context <context>] [--tag <release_tag>] [--repo <owner/repo>] [--token <github_token>] [--verbose] [--dry]"
   echo "  --context <context>   指定源码解压目录，默认为当前目录"
   echo "  --tag <release_tag>   指定要下载的版本标签；不指定时按repo自动选择，也可用 .env/环境变量MDCX_SRC_TAG"
   echo "  --repo <owner/repo>   指定源码仓库，默认'sqzw-x/mdcx'，也可用 .env/环境变量MDCX_SRC_REPO"
+  echo "  --token <github_token> 指定GitHub Token以避免API速率限制，也可用环境变量GITHUB_TOKEN"
   echo "  --verbose             显示详细的下载过程"
   echo "  --dry                 只进行检查，不实际下载"
 }
@@ -207,6 +216,7 @@ load_defaults() {
   release_tag="${MDCX_SRC_TAG:-}"
   default_repo="sqzw-x/mdcx"
   repo="${MDCX_SRC_REPO:-$default_repo}"
+  github_token="${GITHUB_TOKEN:-}"
 }
 
 parse_args() {
@@ -223,6 +233,10 @@ parse_args() {
         ;;
       --repo)
         repo="$2"
+        shift 2
+        ;;
+      --token)
+        github_token="$2"
         shift 2
         ;;
       --verbose)

@@ -202,6 +202,11 @@ collect_runtime_inputs() {
   fi
 
   echo ""
+  echo "❓ 请输入镜像TAG版本，默认为latest"
+  read -p "IMAGE_TAG: " IMAGE_TAG
+  IMAGE_TAG=${IMAGE_TAG:-latest}
+
+  echo ""
   while true; do
     read -p "❓ 请输入需要映射的影片目录，格式为/path/to/movies:/movies，留空则跳过： " MOVIE_DIR
     if [ -z "$MOVIE_DIR" ]; then
@@ -220,6 +225,7 @@ confirm_inputs() {
   echo "📝 您输入的信息如下："
   echo "🔘 $USER_ID_KEY: $USER_ID"
   echo "🔘 $GROUP_ID_KEY: $GROUP_ID"
+  echo "🔘 IMAGE_TAG: $IMAGE_TAG"
 
   # 根据不同的模版，展示不同的端口信息
   if [[ "$BASE" == "gui" ]]; then
@@ -286,6 +292,10 @@ apply_replacements() {
   echo "⏳ 替换容器名称..."
   replace_in_file "s/MDCX_CONTAINER_NAME=.*/MDCX_CONTAINER_NAME=$CONTAINER_NAME/g" .env
   echo "✅ 替换容器名称完成"
+
+  echo "⏳ 替换镜像TAG..."
+  replace_in_file "s/IMAGE_TAG=.*/IMAGE_TAG=$IMAGE_TAG/g" .env
+  echo "✅ 替换镜像TAG完成"
 }
 
 pull_images() {
