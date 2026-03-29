@@ -4,6 +4,7 @@
 # 一般只用于构建镜像流程，普通用户可以忽略。
 # UPDATE 2023-12-24 17:08:03 使用新的源码仓库:https://github.com/sqzw-x/mdcx
 # UPDATE 2024-05-28 21:28:01 sqzw-x/mdcx目前基本只进行daily_release构建
+# UPDATE 2026-03-29 20:46:30 dynamic repo
 
 get_default_release_tag_by_repo() {
   local target_repo="$1"
