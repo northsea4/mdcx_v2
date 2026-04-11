@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1.4
 
-ARG BASE_IMAGE_TAG="v2-amd64"
+ARG BASE_IMAGE_TAG="v2-latest-dev"
 
 # 已编译应用的镜像tag
-ARG MDCX_BIN_IMAGE_TAG="v2-amd64"
+ARG MDCX_BIN_IMAGE_TAG="v2-latest-dev"
 FROM stainless403/build-mdcx:$MDCX_BIN_IMAGE_TAG as provider
 
 
@@ -13,7 +13,7 @@ LABEL maintainer="stainless403"
 LABEL description="base on stainless403/gui-base:$BASE_IMAGE_TAG"
 
 ARG APP_NAME="MDCx"
-ARG APP_VERSION="220250903"
+ARG APP_VERSION="220260411_beta"
 
 ENV APP_NAME $APP_NAME
 ENV APP_VERSION $APP_VERSION

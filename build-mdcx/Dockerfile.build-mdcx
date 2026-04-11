@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
 
-ARG BASE_IMAGE_TAG=v2-amd64
+ARG BASE_IMAGE_TAG=v2-latest-dev
 FROM stainless403/build-mdcx-base:$BASE_IMAGE_TAG as builder
 
 LABEL maintainer="stainless403"

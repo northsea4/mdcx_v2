@@ -141,6 +141,8 @@ jobs:
           echo "hasNewVersion=$hasNewVersion" >> $GITHUB_OUTPUT
           echo "latestVersion=$latestVersion" >> $GITHUB_OUTPUT
           echo "latestTime=$latestTime" >> $GITHUB_OUTPUT
+          echo "srcRepo=$REPO" >> $GITHUB_OUTPUT
+          echo "tagName=$TAG_NAME" >> $GITHUB_OUTPUT
           # 当前时间
           echo "currentTime=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
           # 下次检查时间
@@ -170,7 +172,7 @@ jobs:
             🎉 MDCx新版本！
             📦 新版本号：${{ steps.check.outputs.newVersion }}
             📅 更新时间：${{ steps.check.outputs.newTime }}
-            🔗 发布链接：https://github.com/sqzw-x/mdcx/releases/tag/latest
+            🔗 发布链接：https://github.com/${{ steps.check.outputs.srcRepo }}/releases/tag/${{ steps.check.outputs.tagName }}
       -
         name: TG Notification - For no new version
         uses: appleboy/telegram-action@master
