@@ -12,6 +12,7 @@ on:
       isDev:
         description: Is Dev
         type: boolean
+        default: true
 
 env:
   RELEASE_URL: 'https://api.github.com/repos/sqzw-x/mdcx/releases/latest'
