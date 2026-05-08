@@ -1,5 +1,7 @@
 name: Image build-mdcx CI
 
+run-name: Image build-mdcx CI [stage=${{ github.event.inputs.stage || 'prod' }}]
+
 on:
   push:
     branches:
@@ -96,7 +98,17 @@ jobs:
         name: Produce docker image tags and other information
         id: imageInfo
         run: |
-          if [[ "${{ github.event.inputs.stage }}" == "dev" ]]; then
+          STAGE=${{ github.event.inputs.stage }}
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            WORKFLOW_RUN_JSON='${{ toJson(github.event.workflow_run) }}'
+            if echo "$WORKFLOW_RUN_JSON" | grep -q 'stage=dev'; then
+              STAGE=dev
+            else
+              STAGE=prod
+            fi
+          fi
+
+          if [[ "$STAGE" == "dev" ]]; then
             echo "latest=v2-latest-dev-pyqt6" >> $GITHUB_OUTPUT
             echo "version=${{ steps.prepare.outputs.APP_VERSION }}-dev-pyqt6" >> $GITHUB_OUTPUT
           else
@@ -105,7 +117,16 @@ jobs:
           fi
 
           baseImageTag=${{ github.event.inputs.baseImage }}
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            if [[ "$STAGE" == "dev" ]]; then
+              baseImageTag=v2-latest-dev-pyqt6
+            else
+              baseImageTag=v2-latest-pyqt6
+            fi
+          fi
           baseImageTag=${baseImageTag:-v2-latest-pyqt6}
+
+          echo "stage=${STAGE}" >> $GITHUB_OUTPUT
           echo "baseImageTag=${baseImageTag}" >> $GITHUB_OUTPUT
       - 
         name: Build and push

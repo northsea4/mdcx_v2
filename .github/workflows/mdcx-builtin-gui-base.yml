@@ -1,5 +1,7 @@
 name: Image mdcx-builtin-gui-base CI
 
+run-name: Image mdcx-builtin-gui-base CI [stage=${{ github.event.inputs.stage || 'prod' }}]
+
 on:
   push:
     branches:
@@ -50,7 +52,7 @@ jobs:
         id: buildInfo
         run: |
           STAGE=${{ github.event.inputs.stage }}
-          STAGE=${STAGE:-dev}
+          STAGE=${STAGE:-prod}
 
           BIN_TAG=${{ github.event.inputs.binTag }}
           BIN_TAG=${BIN_TAG:-v2-latest-pyqt6}
@@ -58,10 +60,17 @@ jobs:
           BASE_IMAGE_TAG=${{ github.event.inputs.baseImage }}
           BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-v2-latest-pyqt6}
 
-          if [[ "${{ github.event_name }}" == "workflow_run" && "${{ github.ref_name }}" == "main" ]]; then
-            STAGE=prod
-            BIN_TAG=v2-latest-pyqt6
-            BASE_IMAGE_TAG=v2-latest-pyqt6
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            WORKFLOW_RUN_JSON='${{ toJson(github.event.workflow_run) }}'
+            if echo "$WORKFLOW_RUN_JSON" | grep -q 'stage=dev'; then
+              STAGE=dev
+              BIN_TAG=v2-latest-dev-pyqt6
+              BASE_IMAGE_TAG=v2-latest-dev-pyqt6
+            else
+              STAGE=prod
+              BIN_TAG=v2-latest-pyqt6
+              BASE_IMAGE_TAG=v2-latest-pyqt6
+            fi
           fi
           echo "STAGE=$STAGE" >> $GITHUB_OUTPUT
           echo "BIN_TAG=$BIN_TAG" >> $GITHUB_OUTPUT

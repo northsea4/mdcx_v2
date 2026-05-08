@@ -1,5 +1,7 @@
 name: Image build-mdcx-base CI
 
+run-name: Image build-mdcx-base CI [stage=${{ github.event.inputs.stage || 'prod' }}]
+
 on:
   push:
     branches:
