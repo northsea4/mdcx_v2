@@ -62,10 +62,7 @@ RUN echo "PYPI_MIRROR: $PYPI_MIRROR" && \
 # 最终镜像仅用于存储和分发二进制文件
 FROM alpine:latest
 
-COPY --from=builder /tmp/mdcx/dist/MDCx /MDCx
+COPY --from=builder --chmod=+x /tmp/mdcx/dist/MDCx /MDCx
 COPY --from=builder /tmp/mdcx/dist/app-version /app-version
-
-# 添加执行权限
-RUN chmod +x /MDCx
 
 CMD [ "echo", "This image just contains MDCx bin." ]
