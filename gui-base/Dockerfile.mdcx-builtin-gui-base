@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1.4
 
-ARG BASE_IMAGE_TAG="v2-latest-dev-pyqt6"
+ARG BASE_IMAGE_TAG="v2-latest-pyqt6"
 
 # 已编译应用的镜像tag
-ARG MDCX_BIN_IMAGE_TAG="v2-latest-dev-pyqt6"
+ARG MDCX_BIN_IMAGE_TAG="v2-latest-pyqt6"
 FROM stainless403/build-mdcx:$MDCX_BIN_IMAGE_TAG AS provider
 
 

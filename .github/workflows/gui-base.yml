@@ -10,7 +10,7 @@ on:
       stage:
         description: Stage
         type: choice
-        default: dev
+        default: prod
         options:
           - dev
           - prod
@@ -78,7 +78,7 @@ jobs:
             APT_SOURCE_HOST=${{ env.APT_SOURCE_HOST }}
             BASE_IMAGE_TAG=${{ github.event.inputs.baseImage }}
           platforms: |
-            linux/amd64
+            linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_KEY }}:${{ steps.imageInfo.outputs.latest }}

@@ -127,7 +127,7 @@ jobs:
             APP_VERSION=${{ steps.appInfo.outputs.APP_VERSION }}
             MDCX_BIN_IMAGE_TAG=${{ steps.buildInfo.outputs.BIN_TAG }}
           platforms: |
-            linux/amd64
+            linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_KEY }}:${{ steps.imageInfo.outputs.latest }}
