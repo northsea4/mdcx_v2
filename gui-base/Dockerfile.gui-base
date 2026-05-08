@@ -3,6 +3,8 @@
 ARG BASE_IMAGE_TAG="ubuntu-24.04-v4"
 FROM jlesage/baseimage-gui:$BASE_IMAGE_TAG
 
+ARG BASE_IMAGE_TAG
+
 LABEL maintainer="stainless403"
 LABEL description="base on jlesage/baseimage-gui:$BASE_IMAGE_TAG"
 
@@ -49,6 +51,8 @@ RUN apt update -y && \
   locales \
   # ImportError: libGL.so.1: cannot open shared object file: No such file or directory
   libgl1 \
+  # ImportError: libEGL.so.1: cannot open shared object file: No such file or directory
+  libegl1 \
   # 字体
   fonts-wqy-zenhei \
   fonts-noto-color-emoji \

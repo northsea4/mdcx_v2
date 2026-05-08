@@ -3,8 +3,10 @@
 ARG BASE_IMAGE_TAG="ubuntu-24.04-v4"
 FROM jlesage/baseimage-gui:$BASE_IMAGE_TAG
 
+ARG BASE_IMAGE_TAG
+
 LABEL maintainer="stainless403"
-LABEL description="base on jlesage/baseimage-gui:$BASE_IMAGE_TAG"
+LABEL description="base on jlesage/baseimage-gui"
 
 # 平台相关参数
 ARG TARGETPLATFORM
@@ -35,7 +37,12 @@ RUN apt-get update && \
   curl \
   unrar \
   ca-certificates \
-  binutils && \
+  binutils \
+  libxkbcommon0 \
+  libdbus-1-3 \
+  libglib2.0-0 \
+  libx11-6 \
+  libfreetype6 && \
   # 清理
   apt-get autoremove -y; \
   apt-get autoclean; \

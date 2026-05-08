@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 
 ARG BASE_IMAGE_TAG=v2-latest-dev
-FROM stainless403/build-mdcx-base:$BASE_IMAGE_TAG as builder
+FROM stainless403/build-mdcx-base:$BASE_IMAGE_TAG AS builder
 
 LABEL maintainer="stainless403"
 LABEL description="base on stainless403/mdcx-build-base:$BASE_IMAGE_TAG"
@@ -51,16 +51,17 @@ RUN echo "PYPI_MIRROR: $PYPI_MIRROR" && \
   --hidden-import PIL.ImageFile \
   --hidden-import PIL.ImageFilter \
   --hidden-import PIL._imaging \
-  --hidden-import PyQt5 \
-  --collect-all PyQt5 \
+  --hidden-import PyQt6 \
+  --collect-all PyQt6 \
   --collect-all curl_cffi && \
   # 保存版本信息
   echo $APP_VERSION > /tmp/mdcx/dist/app-version && \
   # 清理构建缓存
   rm -rf /tmp/mdcx/build /tmp/mdcx/__pycache__ /root/.cache/pip
 
-# 使用Alpine作为最终镜像
+# 最终镜像仅用于存储和分发二进制文件
 FROM alpine:latest
+
 COPY --from=builder /tmp/mdcx/dist/MDCx /MDCx
 COPY --from=builder /tmp/mdcx/dist/app-version /app-version
 

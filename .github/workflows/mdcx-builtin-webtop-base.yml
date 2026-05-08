@@ -22,12 +22,12 @@ on:
       baseImage:
         description: Tag of base image `webtop-base`
         type: choice
-        default: 'v2-latest'
+        default: 'v2-latest-pyqt6'
         options:
-          - 'v2-latest'
+          - 'v2-latest-pyqt6'
       binTag:
         description: Tag of app bin image
-        default: 'v2-latest'
+        default: 'v2-latest-pyqt6'
 
 env:
   IMAGE_BASE: webtop-base
@@ -52,15 +52,15 @@ jobs:
           STAGE=${STAGE:-dev}
 
           BIN_TAG=${{ github.event.inputs.binTag }}
-          BIN_TAG=${BIN_TAG:-latest}
+          BIN_TAG=${BIN_TAG:-v2-latest-pyqt6}
 
           BASE_IMAGE_TAG=${{ github.event.inputs.baseImage }}
-          BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-latest}
+          BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-v2-latest-pyqt6}
 
           if [[ "${{ github.event_name }}" == "workflow_run" && "${{ github.ref_name }}" == "main" ]]; then
             STAGE=prod
-            BIN_TAG=latest
-            BASE_IMAGE_TAG=latest
+            BIN_TAG=v2-latest-pyqt6
+            BASE_IMAGE_TAG=v2-latest-pyqt6
           fi
           echo "STAGE=$STAGE" >> $GITHUB_OUTPUT
           echo "BIN_TAG=$BIN_TAG" >> $GITHUB_OUTPUT
@@ -105,11 +105,11 @@ jobs:
         id: imageInfo
         run: |
           if [[ "${{ steps.buildInfo.outputs.STAGE }}" == "dev" ]]; then
-            echo "latest=v2-latest-dev" >> $GITHUB_OUTPUT
-            echo "version=${{ steps.appInfo.outputs.APP_VERSION }}-dev" >> $GITHUB_OUTPUT
+            echo "latest=v2-latest-dev-pyqt6" >> $GITHUB_OUTPUT
+            echo "version=${{ steps.appInfo.outputs.APP_VERSION }}-dev-pyqt6" >> $GITHUB_OUTPUT
           else
-            echo "latest=v2-latest" >> $GITHUB_OUTPUT
-            echo "version=${{ steps.appInfo.outputs.APP_VERSION }}" >> $GITHUB_OUTPUT
+            echo "latest=v2-latest-pyqt6" >> $GITHUB_OUTPUT
+            echo "version=${{ steps.appInfo.outputs.APP_VERSION }}-pyqt6" >> $GITHUB_OUTPUT
           fi
       - 
         name: Build and push

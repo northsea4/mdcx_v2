@@ -3,8 +3,8 @@
 ARG BASE_IMAGE_TAG="ubuntu-kde-22.04"
 
 # 已编译应用的镜像tag
-ARG MDCX_BIN_IMAGE_TAG="latest"
-FROM stainless403/build-mdcx:$MDCX_BIN_IMAGE_TAG as provider
+ARG MDCX_BIN_IMAGE_TAG="v2-latest-pyqt6"
+FROM stainless403/build-mdcx:$MDCX_BIN_IMAGE_TAG AS provider
 
 
 FROM stainless403/webtop-base:$BASE_IMAGE_TAG

@@ -59,11 +59,11 @@ jobs:
         id: imageInfo
         run: |
           if [[ "${{ github.event.inputs.stage }}" == "dev" ]]; then
-            echo "latest=v2-latest-dev" >> $GITHUB_OUTPUT
-            echo "version=${{ steps.versions.outputs.GUI_BASE_VERSION }}-dev" >> $GITHUB_OUTPUT
+            echo "latest=v2-latest-dev-pyqt6" >> $GITHUB_OUTPUT
+            echo "version=${{ steps.versions.outputs.GUI_BASE_VERSION }}-dev-pyqt6" >> $GITHUB_OUTPUT
           else
-            echo "latest=v2-latest" >> $GITHUB_OUTPUT
-            echo "version=${{ steps.versions.outputs.GUI_BASE_VERSION }}" >> $GITHUB_OUTPUT
+            echo "latest=v2-latest-pyqt6" >> $GITHUB_OUTPUT
+            echo "version=${{ steps.versions.outputs.GUI_BASE_VERSION }}-pyqt6" >> $GITHUB_OUTPUT
           fi
       - 
         name: Build and push
