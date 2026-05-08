@@ -75,8 +75,11 @@ RUN apt update -y && \
   libx11-6 \
   libxext6 \
   libxrender1 \
+  libsm6 \
   libfontconfig1 \
   libfreetype6 \
+  libtiff6 \
+  libwebpdemux2 \
   libglu1-mesa \
   libxkbcommon-x11-0 \
   libxkbcommon0 \
