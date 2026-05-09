@@ -29,17 +29,10 @@ env:
 
 jobs:
   # 检查是否有新版本
-  # TODO 清理N天前的runs
   watch:
+    if: ${{ vars.ENABLE_WATCH_MDCX_RELEASE == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.isDev == 'true') }}
     runs-on: ubuntu-latest
     steps:
-      -
-        run: |
-          # TODO 在job上貌似不能读取env或者secrets
-
-          if [[ "${{ env.ENABLE_WATCH }}" != "true" && "${{ github.event.inputs.isDev }}" != "true" ]]; then
-            exit 1
-          fi
       -
         name: Set timezone
         uses: szenius/set-timezone@v1.0
