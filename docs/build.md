@@ -305,6 +305,22 @@ docker buildx build \
   --load \
   -t stainless403/mdcx-builtin-gui-base:${BIN_TAG} \
   -f gui-base/Dockerfile.mdcx-builtin-gui-base .
+
+# webtop-base
+docker buildx build \
+  --platform ${PLATFORM} \
+  --load \
+  -t stainless403/webtop-base:${BASE_TAG} \
+  -f webtop-base/Dockerfile.webtop-base .
+
+# mdcx-builtin-webtop-base
+docker buildx build \
+  --platform ${PLATFORM} \
+  --build-arg MDCX_BIN_IMAGE_TAG=${BIN_TAG} \
+  --build-arg BASE_IMAGE_TAG=${BASE_TAG} \
+  --load \
+  -t stainless403/mdcx-builtin-webtop-base:${BIN_TAG} \
+  -f webtop-base/Dockerfile.mdcx-builtin-webtop-base .
 ```
 
 ### 本地快速测试
