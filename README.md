@@ -3,24 +3,20 @@
 # MDCx Docker
 
 
-📢 上游源码项目已更改为 [sqzw-x/mdcx](https://github.com/sqzw-x/mdcx)。
-
-👉🏻 如果您当前使用的是`20231014`或之前的版本，请阅读 [更改新源码后的更新说明](https://github.com/northsea4/mdcx-docker/blob/dev/docs/about-new-src.md)。
+📢 上游源码项目已更改为 [Hazard804/mdcx](https://github.com/Hazard804/mdcx)。
 
 
 ---
 
 
 ## 镜像
-> 「builtin」表示内置已编译的应用，不需要额外下载安装包。
+> 「gui」是最简单的版本，只能看到应用窗口。
+> 「webtop」有比较完整的桌面环境，但资源占用较高。
 
-> 「gui」是最简单的版本，通过Web访问，且只能看到应用窗口。
-> 「webtop」有比较完整的桌面环境，可以通过Web访问或RDP访问。
-
-| 镜像 | 部署说明 | 网页查看 | 远程桌面 | 文件管理 | 浏览器 |
-| --- | --- | --- | --- | --- | --- |
-| [mdcx-builtin-gui-base](https://hub.docker.com/r/stainless403/mdcx-builtin-gui-base/tags) | [查看](https://github.com/northsea4/mdcx-docker/blob/main/gui-base/mdcx-builtin.md) | ✅ |  |  |  |
-| [mdcx-builtin-webtop-base](https://hub.docker.com/r/stainless403/mdcx-builtin-webtop-base/tags) | [查看](https://github.com/northsea4/mdcx-docker/blob/main/webtop-base/mdcx-builtin.md) | ✅ | ✅ | ✅ | ✅ |
+| 镜像 | 部署说明 | 文件管理 | 浏览器 |
+| --- | --- | --- | --- |
+| [mdcx-builtin-gui-base](https://hub.docker.com/r/stainless403/mdcx-builtin-gui-base/tags) | [查看](https://github.com/northsea4/mdcx-docker/blob/main/gui-base/mdcx-builtin.md) |  |  |
+| [mdcx-builtin-webtop-base](https://hub.docker.com/r/stainless403/mdcx-builtin-webtop-base/tags) | [查看](https://github.com/northsea4/mdcx-docker/blob/main/webtop-base/mdcx-builtin.md) | ✅ | ✅ |
 
 
 ## 使用脚本部署
@@ -86,7 +82,7 @@ touch mdcx-config/config.ini
 
 docker run -d --name mdcx \
   -p 3000:3000 `#Web访问端口` \
-  -p 3389:3389 `#RDP访问端口` \
+  -p 3001:3001 `#Web HTTPS访问端口` \
   -v $(pwd)/data:/config `#容器系统数据` \
   -v $(pwd)/mdcx-config:/mdcx-config `#配置文件目录` \
   -v $(pwd)/mdcx-config/MDCx.config:/app/MDCx.config `#配置文件目录标记文件` \
@@ -100,8 +96,8 @@ docker run -d --name mdcx \
   stainless403/mdcx-builtin-webtop-base:latest
 ```
 
-- 使用`Windows远程桌面`或`Microsoft Remote Desktop`连接 `192.168.1.100:3389` 使用，账号密码`abc/abc`。
 - 浏览器访问 http://192.168.1.100:3000 使用。
+- 浏览器访问 https://192.168.1.100:3001 使用。
 
 
 ## 公网访问

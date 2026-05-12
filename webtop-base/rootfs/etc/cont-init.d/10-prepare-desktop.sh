@@ -22,6 +22,9 @@ prepare() {
       chown -R $PUID:$PGID /app-assets
       chmod -R 755 /app-assets/
 
+      # 清理旧版本遗留的输入法快捷方式
+      rm -f /config/Desktop/input-tools.desktop
+
       cp -p /app-assets/desktop/* /config/Desktop/
       break
     else

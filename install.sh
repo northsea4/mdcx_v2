@@ -62,7 +62,7 @@ choose_template() {
   echo ""
   echo "❓ 请选择容器部署模版（输入数字进行选择）："
   echo " 1) mdcx-builtin-gui-base      轻量版，内置编译版应用，通过网页使用"
-  echo " 2) mdcx-builtin-webtop-base   重量版，内置编译版应用，通过网页和远程桌面使用"
+  echo " 2) mdcx-builtin-webtop-base   重量版，内置编译版应用，通过网页使用"
 
   read -p "📌 请输入数字（1 或 2）: " TEMPLATE_NUM
 
@@ -197,12 +197,11 @@ collect_runtime_inputs() {
     echo "❓ 请输入WEB访问端口号， 默认为3000"
     read -p "WEB_PORT: " WEB_PORT
     WEB_PORT=${WEB_PORT:-3000}
-    # echo "📝 你输入的WEB访问端口号为：$WEB_PORT"
 
     echo ""
-    echo "❓ 请输入RDP访问端口号， 默认为3389"
-    read -p "RDP_LISTEN_PORT: " RDP_LISTEN_PORT
-    RDP_LISTEN_PORT=${RDP_LISTEN_PORT:-3389}
+    echo "❓ 请输入HTTPS访问端口号， 默认为3001"
+    read -p "HTTPS_PORT: " HTTPS_PORT
+    HTTPS_PORT=${HTTPS_PORT:-3001}
   fi
 
   echo ""
@@ -237,7 +236,7 @@ confirm_inputs() {
     echo "🔘 VNC_PORT: $VNC_PORT"
   else
     echo "🔘 WEB_PORT: $WEB_PORT"
-    echo "🔘 RDP_LISTEN_PORT: $RDP_LISTEN_PORT"
+    echo "🔘 HTTPS_PORT: $HTTPS_PORT"
   fi
 
   if [ -z "$VOLUMES" ]; then
@@ -273,7 +272,7 @@ apply_replacements() {
     replace_in_file "s/VNC_PORT=[0-9]+/VNC_PORT=$VNC_PORT/g" .env
   else
     replace_in_file "s/WEB_PORT=[0-9]+/WEB_PORT=$WEB_PORT/g" .env
-    replace_in_file "s/RDP_LISTEN_PORT=[0-9]+/RDP_LISTEN_PORT=$RDP_LISTEN_PORT/g" .env
+    replace_in_file "s/HTTPS_PORT=[0-9]+/HTTPS_PORT=$HTTPS_PORT/g" .env
   fi
 
   echo "✅ 替换环境变量完成"
