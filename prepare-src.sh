@@ -160,7 +160,11 @@ get_release_info() {
   fi
 
   # TODO 如果是数字版本(220250909)则直接使用，否则根据发布时间生成版本号
-  release_version=$(generate_app_version "$published_at")
+  if [[ "$tag_name" =~ ^[0-9]+$ ]]; then
+    release_version="$tag_name"
+  else
+    release_version=$(generate_app_version "$published_at")
+  fi
 
   tar_url=$(printf '%s' "$release" | jq -r '.tarball_url')
   if [[ -z "$tar_url" || "$tar_url" == "null" ]]; then
