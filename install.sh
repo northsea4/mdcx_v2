@@ -128,8 +128,8 @@ choose_template() {
   echo "📖 下面请你回答几个问题，以完成MDCx Docker版的安装。"
   echo ""
   echo "❓ 请选择容器部署模版（输入数字进行选择）："
-  echo " 1) mdcx-builtin-gui-base      轻量版，内置编译版应用，通过网页使用"
-  echo " 2) mdcx-builtin-webtop-base   重量版，内置编译版应用，通过网页使用"
+  echo " 1) mdcx-builtin-gui-base      轻量版，通过网页使用，只有应用窗口"
+  echo " 2) mdcx-builtin-webtop-base   重量版，通过网页使用，有桌面环境，资源占用高！"
 
   read -p "📌 请输入数字（1 或 2）: " TEMPLATE_NUM
 
