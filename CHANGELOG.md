@@ -1,5 +1,8 @@
 ## 更新日志
 
+### [v0.9.0] - 2026-05-17
+- v2
+
 ### [v0.8.0] - 2024-05-29
 - 1.跟进daily_release。[#40](https://github.com/northsea4/mdcx-docker/issues/40)
 
