@@ -2,6 +2,8 @@
 
 OS=$(uname)
 FILE_INITIALIZED=".mdcx_initialized"
+COMPOSE_COMMAND=""
+COMPOSE_DISPLAY_COMMAND=""
 
 replace_in_file() {
   if [ "$OS" = 'Darwin' ]; then
@@ -10,6 +12,14 @@ replace_in_file() {
   else
     # for Linux and Windows
     sed -i'' -r -e "$1" "$2"
+  fi
+}
+
+run_compose() {
+  if [ "$COMPOSE_COMMAND" = "docker-compose" ]; then
+    docker-compose "$@"
+  else
+    docker compose "$@"
   fi
 }
 
@@ -49,9 +59,15 @@ check_dependencies() {
     exit 1
   fi
 
-  # 检查是否有docker-compose命令
-  if ! command -v docker-compose > /dev/null 2>&1; then
-    echo "❌ 未找到docker-compose命令，请先安装docker-compose。"
+  # 检查是否有docker-compose命令或docker compose子命令
+  if command -v docker-compose > /dev/null 2>&1; then
+    COMPOSE_COMMAND="docker-compose"
+    COMPOSE_DISPLAY_COMMAND="docker-compose"
+  elif docker compose version > /dev/null 2>&1; then
+    COMPOSE_COMMAND="docker compose"
+    COMPOSE_DISPLAY_COMMAND="docker compose"
+  else
+    echo "❌ 未找到 docker-compose 命令，也无法使用 docker compose，请先安装 Docker Compose。"
     exit 1
   fi
 }
@@ -305,14 +321,14 @@ pull_images() {
   # 拉取镜像
   echo ""
   echo "⏳ 拉取镜像..."
-  docker-compose pull
+  run_compose pull
   if [ $? -eq 0 ]; then
     echo "✅ 拉取镜像完成"
   else
     echo "❌ 拉取镜像失败，请检查错误日志。如果是网络问题，在解决后你可以使用以下命令重新拉取和运行: "
     echo "cd ${DIR_FULL_PATH}"
-    echo "docker-compose pull"
-    echo "docker-compose up -d"
+    echo "${COMPOSE_DISPLAY_COMMAND} pull"
+    echo "${COMPOSE_DISPLAY_COMMAND} up -d"
 
     on_error "${DIR_FULL_PATH}"
   fi
@@ -322,7 +338,7 @@ start_or_create_container() {
   echo ""
   read -p "❓ 是否运行容器？[y/n] " RUN_CONTAINER
   if [[ "$RUN_CONTAINER" =~ ^[Yy](es)?$ ]]; then
-    docker-compose up -d
+    run_compose up -d
     if [ $? -eq 0 ]; then
       echo "✅ 容器已经成功运行"
       echo ""
@@ -334,10 +350,10 @@ start_or_create_container() {
       on_error "${DIR_FULL_PATH}"
     fi
   else
-    docker-compose create
+    run_compose create
 
     echo "🔘 你可以之后通过以下命令启动容器:"
-    echo "cd ${DIR_FULL_PATH} && docker-compose up -d"
+    echo "cd ${DIR_FULL_PATH} && ${COMPOSE_DISPLAY_COMMAND} up -d"
   fi
 }
 
