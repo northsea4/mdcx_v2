@@ -28,15 +28,19 @@ on_error() {
   local projectDir=$1
   
   echo ""
-  # 询问是否删除目录
-  read -p "❓ 是否删除项目目录 ${projectDir}？（y/N，默认为N）：" DELETE_DIR
-  DELETE_DIR=${DELETE_DIR:-N}
-  echo ""
-  if [[ "$DELETE_DIR" =~ ^[Yy]$ ]]; then
-    rm -rf "$projectDir"
-    echo "🗑 已删除目录：${projectDir}"
+  if [ -n "$projectDir" ] && [ -d "$projectDir" ]; then
+    # 询问是否删除目录
+    read -p "❓ 是否删除项目目录 ${projectDir}？（y/N，默认为N）：" DELETE_DIR
+    DELETE_DIR=${DELETE_DIR:-N}
+    echo ""
+    if [[ "$DELETE_DIR" =~ ^[Yy]$ ]]; then
+      rm -rf "$projectDir"
+      echo "🗑 已删除目录：${projectDir}"
+    else
+      echo "📁 项目目录已被保留：${projectDir}"
+    fi
   else
-    echo "📁 项目目录已被保留：${projectDir}"
+    echo "📁 当前没有可清理的项目目录。"
   fi
 
   exit 1
@@ -128,7 +132,7 @@ download_and_extract_template() {
   fi
 
   ZIP_FILE="${RANDOM_NAME}.zip"
-  curl "$DOWNLOAD_URL" -L --connect-timeout 30 --max-time 300 -o "$ZIP_FILE"
+  curl "$DOWNLOAD_URL" -fL --connect-timeout 30 --max-time 300 -o "$ZIP_FILE"
   if [ $? -ne 0 ]; then
     echo "❌ 模版文件下载失败！"
     on_error "${DIR_FULL_PATH}"
@@ -161,6 +165,7 @@ setup_project_directory() {
   # 检查目录是否已存在
   while [ -d "$DIR_NAME" ]; do
     read -p "❌ 目录已存在，请输入其他目录名称：" DIR_NAME
+    DIR_NAME=${DIR_NAME:-mdcx-docker}
   done
 
   # 移动mdcx-docker模版目录并重命名为用户输入的目录名称
