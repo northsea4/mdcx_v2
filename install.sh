@@ -29,12 +29,14 @@ on_error() {
   
   echo ""
   # 询问是否删除目录
-  read -p "❓ 是否删除项目目录 ${projectDir}？（y/n，默认为n）：" DELETE_DIR
-  DELETE_DIR=${DELETE_DIR:-n}
+  read -p "❓ 是否删除项目目录 ${projectDir}？（y/N，默认为N）：" DELETE_DIR
+  DELETE_DIR=${DELETE_DIR:-N}
   echo ""
-  if [ "$DELETE_DIR" = "y" ]; then
+  if [[ "$DELETE_DIR" =~ ^[Yy]$ ]]; then
     rm -rf "$projectDir"
     echo "🗑 已删除目录：${projectDir}"
+  else
+    echo "📁 项目目录已被保留：${projectDir}"
   fi
 
   exit 1
@@ -221,9 +223,9 @@ collect_runtime_inputs() {
   fi
 
   echo ""
-  echo "❓ 请输入镜像TAG版本，默认为latest"
+  echo "❓ 请输入镜像TAG版本，默认为v2-latest"
   read -p "IMAGE_TAG: " IMAGE_TAG
-  IMAGE_TAG=${IMAGE_TAG:-latest}
+  IMAGE_TAG=${IMAGE_TAG:-v2-latest}
 
   echo ""
   while true; do
@@ -263,7 +265,8 @@ confirm_inputs() {
   fi
 
   echo ""
-  read -p "❓ 确认信息是否填写正确（yes/y确认，no/n退出）：" CONFIRMED
+  read -p "❓ 确认信息是否填写正确（Y/n，默认为Y）：" CONFIRMED
+  CONFIRMED=${CONFIRMED:-Y}
 
   if [[ "$CONFIRMED" =~ ^[nN](o)?$ ]]; then
     echo "❗ 操作已取消"
