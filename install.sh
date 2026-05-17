@@ -27,6 +27,12 @@ escape_sed_replacement() {
   printf '%s' "$1" | sed -e 's/[&|\\]/\\&/g'
 }
 
+read_env_value() {
+  local envFile=$1
+  local envKey=$2
+  grep -m 1 "^${envKey}=" "$envFile" | cut -d '=' -f 2-
+}
+
 is_valid_port() {
   [[ "$1" =~ ^[0-9]+$ ]] && [ "$1" -ge 1 ] && [ "$1" -le 65535 ]
 }
@@ -212,7 +218,7 @@ setup_project_directory() {
   DIR_FULL_PATH=$(pwd)
   echo "📁 已创建并进入目录：$(pwd)"
 
-  source .env
+  MDCX_CONTAINER_NAME=$(read_env_value .env "MDCX_CONTAINER_NAME")
 }
 
 collect_runtime_inputs() {
@@ -389,8 +395,9 @@ pull_images() {
 
 start_or_create_container() {
   echo ""
-  read -p "❓ 是否运行容器？[y/n] " RUN_CONTAINER
-  if [[ "$RUN_CONTAINER" =~ ^[Yy](es)?$ ]]; then
+  read -p "❓ 是否运行容器？（Y/n，默认为Y）：" RUN_CONTAINER
+  RUN_CONTAINER=${RUN_CONTAINER:-Y}
+  if [[ ! "$RUN_CONTAINER" =~ ^[nN](o)?$ ]]; then
     run_compose up -d
     if [ $? -eq 0 ]; then
       echo "✅ 容器已经成功运行"
