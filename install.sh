@@ -30,7 +30,14 @@ escape_sed_replacement() {
 read_env_value() {
   local envFile=$1
   local envKey=$2
-  grep -m 1 "^${envKey}=" "$envFile" | cut -d '=' -f 2-
+  local envLine
+
+  if [ ! -f "$envFile" ]; then
+    return 1
+  fi
+
+  envLine=$(grep -m 1 "^${envKey}=" "$envFile") || return 1
+  printf '%s' "${envLine#*=}"
 }
 
 is_valid_port() {
@@ -219,6 +226,10 @@ setup_project_directory() {
   echo "📁 已创建并进入目录：$(pwd)"
 
   MDCX_CONTAINER_NAME=$(read_env_value .env "MDCX_CONTAINER_NAME")
+  if [ -z "$MDCX_CONTAINER_NAME" ]; then
+    echo "❌ 读取 .env 失败：缺少 MDCX_CONTAINER_NAME 配置。"
+    on_error "${DIR_FULL_PATH}"
+  fi
 }
 
 collect_runtime_inputs() {
