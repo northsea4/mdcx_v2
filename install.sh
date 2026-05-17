@@ -23,6 +23,39 @@ run_compose() {
   fi
 }
 
+escape_sed_replacement() {
+  printf '%s' "$1" | sed -e 's/[&|\\]/\\&/g'
+}
+
+is_valid_port() {
+  [[ "$1" =~ ^[0-9]+$ ]] && [ "$1" -ge 1 ] && [ "$1" -le 65535 ]
+}
+
+prompt_for_port() {
+  local promptLabel=$1
+  local variableName=$2
+  local defaultValue=$3
+  local portValue
+
+  while true; do
+    echo ""
+    echo "❓ 请输入${promptLabel}， 默认为${defaultValue}"
+    read -p "${variableName}: " portValue
+    portValue=${portValue:-$defaultValue}
+
+    if is_valid_port "$portValue"; then
+      printf -v "$variableName" '%s' "$portValue"
+      return
+    fi
+
+    echo "❌ 错误：端口号必须是 1-65535 的整数"
+  done
+}
+
+is_valid_container_name() {
+  [[ "$1" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]*$ ]]
+}
+
 # 发生错误时的退出处理
 on_error() {
   local projectDir=$1
@@ -206,25 +239,11 @@ collect_runtime_inputs() {
 
   # 不同的模版使用不同的端口环境变量名称
   if [[ "$BASE" == "gui" ]]; then
-    echo ""
-    echo "❓ 请输入WEB访问端口号， 默认为5800"
-    read -p "WEB_PORT: " WEB_PORT
-    WEB_PORT=${WEB_PORT:-5800}
-
-    echo ""
-    echo "❓ 请输入VNC端口号， 默认为5900"
-    read -p "VNC_PORT: " VNC_PORT
-    VNC_PORT=${VNC_PORT:-5900}
+    prompt_for_port "WEB访问端口号" "WEB_PORT" "5800"
+    prompt_for_port "VNC端口号" "VNC_PORT" "5900"
   else
-    echo ""
-    echo "❓ 请输入WEB访问端口号， 默认为3000"
-    read -p "WEB_PORT: " WEB_PORT
-    WEB_PORT=${WEB_PORT:-3000}
-
-    echo ""
-    echo "❓ 请输入HTTPS访问端口号， 默认为3001"
-    read -p "HTTPS_PORT: " HTTPS_PORT
-    HTTPS_PORT=${HTTPS_PORT:-3001}
+    prompt_for_port "WEB访问端口号" "WEB_PORT" "3000"
+    prompt_for_port "HTTPS访问端口号" "HTTPS_PORT" "3001"
   fi
 
   echo ""
@@ -280,23 +299,38 @@ confirm_inputs() {
 }
 
 apply_replacements() {
+  local escaped_user_id
+  local escaped_group_id
+  local escaped_web_port
+  local escaped_vnc_port
+  local escaped_https_port
+  local escaped_volumes
+  local escaped_container_name
+  local escaped_image_tag
+
   echo "⏳ 替换环境变量..."
+  escaped_user_id=$(escape_sed_replacement "$USER_ID")
+  escaped_group_id=$(escape_sed_replacement "$GROUP_ID")
+
   # 根据不同的模版，替换不同的环境变量名称
   if [[ "$BASE" == "gui" ]]; then
-    replace_in_file "s/USER_ID=[0-9]+/USER_ID=$USER_ID/g" .env
-    replace_in_file "s/GROUP_ID=[0-9]+/GROUP_ID=$GROUP_ID/g" .env
+    replace_in_file "s|USER_ID=[0-9]+|USER_ID=$escaped_user_id|g" .env
+    replace_in_file "s|GROUP_ID=[0-9]+|GROUP_ID=$escaped_group_id|g" .env
   else
-    replace_in_file "s/PUID=[0-9]+/PUID=$USER_ID/g" .env
-    replace_in_file "s/PGID=[0-9]+/PGID=$GROUP_ID/g" .env
+    replace_in_file "s|PUID=[0-9]+|PUID=$escaped_user_id|g" .env
+    replace_in_file "s|PGID=[0-9]+|PGID=$escaped_group_id|g" .env
   fi
 
   # 根据不同的模版，替换不同的端口信息
+  escaped_web_port=$(escape_sed_replacement "$WEB_PORT")
   if [[ "$BASE" == "gui" ]]; then
-    replace_in_file "s/WEB_PORT=[0-9]+/WEB_PORT=$WEB_PORT/g" .env
-    replace_in_file "s/VNC_PORT=[0-9]+/VNC_PORT=$VNC_PORT/g" .env
+    escaped_vnc_port=$(escape_sed_replacement "$VNC_PORT")
+    replace_in_file "s|WEB_PORT=[0-9]+|WEB_PORT=$escaped_web_port|g" .env
+    replace_in_file "s|VNC_PORT=[0-9]+|VNC_PORT=$escaped_vnc_port|g" .env
   else
-    replace_in_file "s/WEB_PORT=[0-9]+/WEB_PORT=$WEB_PORT/g" .env
-    replace_in_file "s/HTTPS_PORT=[0-9]+/HTTPS_PORT=$HTTPS_PORT/g" .env
+    escaped_https_port=$(escape_sed_replacement "$HTTPS_PORT")
+    replace_in_file "s|WEB_PORT=[0-9]+|WEB_PORT=$escaped_web_port|g" .env
+    replace_in_file "s|HTTPS_PORT=[0-9]+|HTTPS_PORT=$escaped_https_port|g" .env
   fi
 
   echo "✅ 替换环境变量完成"
@@ -304,24 +338,35 @@ apply_replacements() {
   echo "⏳ 替换挂载卷..."
   # $VOLUMES不为空时才进行替换
   if [[ -n "$VOLUMES" ]]; then
-    replace_in_file "s|# VOLUMES_REPLACEMENT|$VOLUMES|" docker-compose.yml
+    escaped_volumes=$(escape_sed_replacement "$VOLUMES")
+    replace_in_file "s|# VOLUMES_REPLACEMENT|$escaped_volumes|" docker-compose.yml
     echo "✅ 替换挂载卷完成"
   else
     echo "❗ 你没有指定映射影片目录，你可以之后在docker-compose.yml中手动添加。"
   fi
 
   # 询问输入容器名称
-  echo ""
-  echo "❓ 请输入容器名称（默认：${MDCX_CONTAINER_NAME}）"
-  read -p "容器名称：" CONTAINER_NAME
-  CONTAINER_NAME=${CONTAINER_NAME:-$MDCX_CONTAINER_NAME}
+  while true; do
+    echo ""
+    echo "❓ 请输入容器名称（默认：${MDCX_CONTAINER_NAME}）"
+    read -p "容器名称：" CONTAINER_NAME
+    CONTAINER_NAME=${CONTAINER_NAME:-$MDCX_CONTAINER_NAME}
+
+    if is_valid_container_name "$CONTAINER_NAME"; then
+      break
+    fi
+
+    echo "❌ 错误：容器名称只能包含字母、数字、点、下划线、短横线，且必须以字母或数字开头"
+  done
 
   echo "⏳ 替换容器名称..."
-  replace_in_file "s/MDCX_CONTAINER_NAME=.*/MDCX_CONTAINER_NAME=$CONTAINER_NAME/g" .env
+  escaped_container_name=$(escape_sed_replacement "$CONTAINER_NAME")
+  replace_in_file "s|MDCX_CONTAINER_NAME=.*|MDCX_CONTAINER_NAME=$escaped_container_name|g" .env
   echo "✅ 替换容器名称完成"
 
   echo "⏳ 替换镜像TAG..."
-  replace_in_file "s/IMAGE_TAG=.*/IMAGE_TAG=$IMAGE_TAG/g" .env
+  escaped_image_tag=$(escape_sed_replacement "$IMAGE_TAG")
+  replace_in_file "s|IMAGE_TAG=.*|IMAGE_TAG=$escaped_image_tag|g" .env
   echo "✅ 替换镜像TAG完成"
 }
 
