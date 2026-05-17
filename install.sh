@@ -1,7 +1,6 @@
 #!/bin/bash
 
 OS=$(uname)
-FILE_INITIALIZED=".mdcx_initialized"
 COMPOSE_COMMAND=""
 COMPOSE_DISPLAY_COMMAND=""
 
