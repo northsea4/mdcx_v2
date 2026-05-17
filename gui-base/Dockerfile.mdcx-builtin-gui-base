@@ -45,7 +45,7 @@ RUN mkdir -p "$MDCX_CONFIG_PATH" && \
   chmod -R 777 "$MDCX_CONFIG_PATH"
 
 # 写入默认的`配置文件目录`标记文件
-RUN echo "$MDCX_CONFIG_PATH/config.ini" > /app/MDCx.config
+RUN echo "$MDCX_CONFIG_PATH/config.v2.json" > /app/MDCx.config
 
 # 复制已编译的文件
 COPY --from=provider --chmod=+x /MDCx /app/MDCx

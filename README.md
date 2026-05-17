@@ -43,9 +43,8 @@ mkdir -p $MDCX_DOCKER_DIR && cd $MDCX_DOCKER_DIR
 # 必须：相关数据或日志目录
 mkdir -p mdcx-config logs data
 # 必须：配置文件目录标记文件
-echo "/mdcx-config/config.ini" > mdcx-config/MDCx.config
-# 确保有config.ini文件
-touch mdcx-config/config.ini
+echo "/mdcx-config/config.v2.json" > mdcx-config/MDCx.config
+# 不需要手动创建配置文件，程序会自动创建
 
 docker run -d --name mdcx \
   -p 5800:5800 `#Web访问端口` \
@@ -76,9 +75,8 @@ mkdir -p $MDCX_DOCKER_DIR && cd $MDCX_DOCKER_DIR
 # 必须：相关数据或日志目录
 mkdir -p mdcx-config logs data
 # 必须：配置文件目录标记文件
-echo "/mdcx-config/config.ini" > mdcx-config/MDCx.config
-# 确保有config.ini文件
-touch mdcx-config/config.ini
+echo "/mdcx-config/config.v2.json" > mdcx-config/MDCx.config
+# 不需要手动创建配置文件，程序会自动创建
 
 docker run -d --name mdcx \
   -p 3000:3000 `#Web访问端口` \
